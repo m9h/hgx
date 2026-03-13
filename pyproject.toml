@@ -41,9 +41,11 @@ dev = ["pre-commit", "ruff", "optax"]
 tests = ["pytest", "beartype"]
 viz = ["matplotlib", "networkx"]
 data = []
+anndata = ["anndata", "scanpy"]
 geometry = ["e3nn-jax"]
 dynamics = ["diffrax>=0.6.0"]
 pgmax = ["pgmax"]
+topology = ["giotto-tda"]
 docs = [
     "mkdocs",
     "mkdocs-material",

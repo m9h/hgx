@@ -9,6 +9,8 @@ from hgx._conv import (
     AbstractHypergraphConv as AbstractHypergraphConv,
     LorentzHypergraphConv as LorentzHypergraphConv,
     PoincareHypergraphConv as PoincareHypergraphConv,
+    SheafDiffusion as SheafDiffusion,
+    SheafHypergraphConv as SheafHypergraphConv,
     THNNConv as THNNConv,
     THNNSparseConv as THNNSparseConv,
     UniGATConv as UniGATConv,
@@ -37,16 +39,60 @@ from hgx._ndp import (
     develop_trajectory as develop_trajectory,
     HypergraphNDP as HypergraphNDP,
 )
+from hgx._perturbation import (
+    in_silico_knockout as in_silico_knockout,
+    perturbation_screen as perturbation_screen,
+    PerturbationEncoder as PerturbationEncoder,
+    PerturbationPredictor as PerturbationPredictor,
+    train_perturbation_predictor as train_perturbation_predictor,
+)
+from hgx._pool import (
+    HierarchicalHGNN as HierarchicalHGNN,
+    hypergraph_global_pool as hypergraph_global_pool,
+    HypergraphPooling as HypergraphPooling,
+    SpectralPooling as SpectralPooling,
+    TopKPooling as TopKPooling,
+)
 from hgx._sparse import (
     edge_to_vertex as edge_to_vertex,
     incidence_to_star_expansion as incidence_to_star_expansion,
     vertex_to_edge as vertex_to_edge,
+)
+from hgx._sparse_incidence import (
+    from_edge_list_sparse as from_edge_list_sparse,
+    from_sparse_incidence as from_sparse_incidence,
+    SparseHypergraph as SparseHypergraph,
+    SparseUniGCNConv as SparseUniGCNConv,
+    to_sparse as to_sparse,
+)
+from hgx._temporal import (
+    align_topologies as align_topologies,
+    fit_neural_ode as fit_neural_ode,
+    from_snapshots as from_snapshots,
+    interpolate as interpolate,
+    sliding_window as sliding_window,
+    temporal_smoothness_loss as temporal_smoothness_loss,
+    TemporalHypergraph as TemporalHypergraph,
+)
+from hgx._topology import (
+    hodge_laplacians as hodge_laplacians,
+    TopologicalLayer as TopologicalLayer,
 )
 from hgx._transforms import (
     clique_expansion as clique_expansion,
     hypergraph_laplacian as hypergraph_laplacian,
 )
 
+
+try:
+    from hgx._topology import (
+        compute_persistence as compute_persistence,
+        persistence_features as persistence_features,
+        persistence_image as persistence_image,
+        persistence_landscape as persistence_landscape,
+    )
+except ImportError:
+    pass
 
 try:
     from hgx._dynamics import (
@@ -72,6 +118,17 @@ except ImportError:
 
 try:
     from hgx._conv._se3 import SE3HypergraphConv as SE3HypergraphConv
+except ImportError:
+    pass
+
+try:
+    from hgx._grn import (
+        grn_to_temporal_hypergraphs as grn_to_temporal_hypergraphs,
+        load_grn_from_anndata as load_grn_from_anndata,
+        load_grn_from_csv as load_grn_from_csv,
+        load_grn_from_edge_list as load_grn_from_edge_list,
+        load_pando_modules as load_pando_modules,
+    )
 except ImportError:
     pass
 
