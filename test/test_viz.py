@@ -1,15 +1,15 @@
 """Tests for visualization utilities (Agg backend, no display)."""
 
-import matplotlib
+import pytest
 
 
+matplotlib = pytest.importorskip("matplotlib")
 matplotlib.use("Agg")
 
 import hgx
 import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
-import pytest
 from hgx._viz import (
     draw_attention,
     draw_hypergraph,
