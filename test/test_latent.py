@@ -1,10 +1,14 @@
 """Tests for latent hypergraph dynamics (encode-integrate-decode)."""
 
+import pytest
+
+
+pytest.importorskip("diffrax")
+
 import equinox as eqx
 import hgx
 import jax
 import jax.numpy as jnp
-import pytest
 
 
 @pytest.fixture
