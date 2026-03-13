@@ -41,6 +41,7 @@ dev = ["pre-commit", "ruff", "optax"]
 tests = ["pytest", "beartype"]
 viz = ["matplotlib", "networkx"]
 data = []
+geometry = ["e3nn-jax"]
 dynamics = ["diffrax>=0.6.0"]
 pgmax = ["pgmax"]
 docs = [

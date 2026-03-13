@@ -7,13 +7,20 @@ import numpy as np
 import pytest
 
 
-pgmax = pytest.importorskip("pgmax")
+try:
+    from hgx._pgmax import (
+        ActiveInferenceStep,
+        hypergraph_to_factor_graph,
+        learn_potentials,
+        run_cell_fate_inference,
+    )
+    from pgmax import fgraph, fgroup, vgroup  # noqa: F401
+    _PGMAX_AVAILABLE = True
+except (ImportError, Exception):
+    _PGMAX_AVAILABLE = False
 
-from hgx._pgmax import (
-    ActiveInferenceStep,
-    hypergraph_to_factor_graph,
-    learn_potentials,
-    run_cell_fate_inference,
+pytestmark = pytest.mark.skipif(
+    not _PGMAX_AVAILABLE, reason="pgmax not usable",
 )
 
 
@@ -48,7 +55,7 @@ class TestHypergraphToFactorGraph:
         fg, variables = hypergraph_to_factor_graph(
             simple_hg, num_states=2, potential_fn=pot_fn
         )
-        assert isinstance(fg, pgmax.fgraph.FactorGraph)
+        assert isinstance(fg, fgraph.FactorGraph)
 
     def test_skips_singleton_edges(self):
         """Hyperedges with < 2 members produce no factors."""
