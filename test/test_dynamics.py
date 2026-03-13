@@ -1,10 +1,14 @@
 """Tests for continuous-time dynamics on hypergraphs."""
 
+import pytest
+
+
+pytest.importorskip("diffrax")
+
 import equinox as eqx
 import hgx
 import jax
 import jax.numpy as jnp
-import pytest
 from hgx._dynamics import (
     evolve,
     HypergraphNeuralCDE,
