@@ -4,6 +4,7 @@ import equinox as eqx
 import hgx
 import jax
 import jax.numpy as jnp
+import pytest
 
 
 class TestHGNNStack:
@@ -50,6 +51,19 @@ class TestHGNNStack:
         # Should work with key during training
         out = model(tiny_hypergraph, key=k2, inference=False)
         assert out.shape == (4, 8)
+
+    def test_dropout_training_missing_key(self, tiny_hypergraph, prng_key):
+        model = hgx.HGNNStack(
+            conv_dims=[(2, 8)],
+            conv_cls=hgx.UniGCNConv,
+            dropout_rate=0.5,
+            key=prng_key,
+        )
+        # Should raise ValueError if key is not provided during training
+        with pytest.raises(
+            ValueError, match="Must provide key for dropout during training."
+        ):
+            model(tiny_hypergraph, key=None, inference=False)
 
     def test_dropout_disabled_at_inference(self, tiny_hypergraph, prng_key):
         model = hgx.HGNNStack(

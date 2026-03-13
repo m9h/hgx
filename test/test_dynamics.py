@@ -74,7 +74,7 @@ class TestHypergraphNeuralODE:
 
     def test_saveat_multiple_times(self, square_tiny_hypergraph, prng_key):
         """SaveAt with multiple time points returns a trajectory."""
-        import diffrax
+        diffrax = pytest.importorskip("diffrax")
 
         conv = hgx.UniGCNConv(in_dim=8, out_dim=8, key=prng_key)
         model = HypergraphNeuralODE(conv)
@@ -365,7 +365,7 @@ class TestDynamicsConvergence:
         no normalization, identity activation => dx/dt = -x.
         Analytical: x(t) = x0 * exp(-t).
         """
-        import diffrax
+        diffrax = pytest.importorskip("diffrax")
 
         n, d = 3, 2
         H = jnp.eye(n)
