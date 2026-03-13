@@ -264,6 +264,7 @@ class ActiveInferenceStep(eqx.Module):
         """
         # Step 1: Evolve continuous dynamics
         import typing
+
         from jaxtyping import Array
         sol = self.ode_model(hg, t0=t0, t1=t1)
         ys = typing.cast(Array, sol.ys)
