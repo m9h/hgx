@@ -120,7 +120,9 @@ def draw_hypergraph(
     # Colors
     v_color = config.node_color if config.node_color is not None else "steelblue"
     e_colors = (
-        list(config.edge_color) if config.edge_color is not None else _default_edge_colors(m)
+        list(config.edge_color)
+        if config.edge_color is not None
+        else _default_edge_colors(m)
     )
 
     draw_kwargs = config.kwargs.copy()

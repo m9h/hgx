@@ -11,12 +11,12 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import pytest
 from hgx._viz import (
-    DrawConfig,
     draw_attention,
     draw_hypergraph,
     draw_incidence,
     draw_phase_portrait,
     draw_trajectory,
+    DrawConfig,
 )
 
 

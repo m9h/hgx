@@ -133,7 +133,7 @@ class TestActiveInferenceStep:
         )
 
     def test_construction(self, ode_hg):
-        diffrax = pytest.importorskip("diffrax")
+        pytest.importorskip("diffrax")
         key = jax.random.PRNGKey(0)
         k1, k2 = jax.random.split(key, 2)
         ode = hgx.HypergraphNeuralODE(
