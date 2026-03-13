@@ -38,7 +38,7 @@ fig, axes = plt.subplots(1, 2, figsize=(16, 6))
 hgx.draw_hypergraph(
     hg,
     ax=axes[0],
-    title="Hypergraph (star expansion layout)",
+    config=hgx.DrawConfig(title="Hypergraph (star expansion layout)"),
 )
 
 hgx.draw_incidence(

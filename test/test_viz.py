@@ -11,6 +11,7 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import pytest
 from hgx._viz import (
+    DrawConfig,
     draw_attention,
     draw_hypergraph,
     draw_incidence,
@@ -36,12 +37,12 @@ class TestDrawHypergraph:
         plt.close("all")
 
     def test_with_title(self, six_node_hg):
-        ax = draw_hypergraph(six_node_hg, title="test")
+        ax = draw_hypergraph(six_node_hg, config=DrawConfig(title="test"))
         assert ax.get_title() == "test"
         plt.close("all")
 
     def test_custom_node_labels(self, six_node_hg):
-        ax = draw_hypergraph(six_node_hg, node_labels=list("ABCDEF"))
+        ax = draw_hypergraph(six_node_hg, config=DrawConfig(node_labels=list("ABCDEF")))
         assert isinstance(ax, matplotlib.axes.Axes)
         plt.close("all")
 

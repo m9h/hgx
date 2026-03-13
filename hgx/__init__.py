@@ -73,6 +73,7 @@ except ImportError:
 
 try:
     from hgx._viz import (
+        DrawConfig as DrawConfig,
         draw_attention as draw_attention,
         draw_hypergraph as draw_hypergraph,
         draw_incidence as draw_incidence,
