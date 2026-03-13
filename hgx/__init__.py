@@ -92,6 +92,7 @@ try:
         draw_incidence as draw_incidence,
         draw_phase_portrait as draw_phase_portrait,
         draw_trajectory as draw_trajectory,
+        DrawConfig as DrawConfig,
     )
 except ImportError:
     pass
