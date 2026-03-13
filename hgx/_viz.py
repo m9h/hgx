@@ -82,6 +82,8 @@ def draw_hypergraph(
     H = np.asarray(hg._masked_incidence())
     n, m = H.shape
 
+    v_idx, e_idx = np.nonzero(H)
+
     # Build bipartite star expansion graph
     G = nx.Graph()
     v_nodes = [f"v{i}" for i in range(n)]
@@ -89,11 +91,7 @@ def draw_hypergraph(
     G.add_nodes_from(v_nodes, bipartite=0)
     G.add_nodes_from(e_nodes, bipartite=1)
 
-    memberships: list[tuple[str, str]] = []
-    for i in range(n):
-        for k in range(m):
-            if H[i, k] > 0:
-                memberships.append((f"v{i}", f"e{k}"))
+    memberships = [(f"v{v}", f"e{e}") for v, e in zip(v_idx, e_idx)]
     G.add_edges_from(memberships)
 
     # Layout
@@ -142,17 +140,12 @@ def draw_hypergraph(
     )
 
     # Draw edges colored by hyperedge, with optional per-edge line widths
-    edge_to_color = {}
-    for k in range(m):
-        for i in range(n):
-            if H[i, k] > 0:
-                edge_to_color[(f"v{i}", f"e{k}")] = e_colors[k]
+    edge_to_color = {(f"v{v}", f"e{e}"): e_colors[e] for v, e in zip(v_idx, e_idx)}
 
     # Build a per-membership linewidth lookup if provided
     lw_lookup: dict[tuple[str, str], float] | None = None
     if edge_linewidth is not None:
         lw_arr = np.asarray(edge_linewidth)
-        v_idx, e_idx = np.nonzero(H)
         lw_lookup = {}
         for idx in range(len(v_idx)):
             lw_lookup[(f"v{v_idx[idx]}", f"e{e_idx[idx]}")] = float(lw_arr[idx])
