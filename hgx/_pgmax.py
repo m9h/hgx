@@ -37,6 +37,9 @@ def _ensure_pgmax():
         ) from exc
 
     class _PGMax:
+        vgroup: Any
+        fgroup: Any
+        fgraph: Any
         pass
 
     ns = _PGMax()
@@ -260,8 +263,12 @@ class ActiveInferenceStep(eqx.Module):
             - ``"evolved_hg"``: Hypergraph with evolved node features.
         """
         # Step 1: Evolve continuous dynamics
+        import typing
+
+        from jaxtyping import Array
         sol = self.ode_model(hg, t0=t0, t1=t1)
-        evolved_features = sol.ys
+        ys = typing.cast(Array, sol.ys)
+        evolved_features = ys
 
         evolved_hg = Hypergraph(
             node_features=evolved_features,

@@ -85,11 +85,11 @@ class LatentHypergraphODE(eqx.Module):
             out_size=latent_dim,
             width_size=latent_dim,
             depth=encoder_depth,
-            activation=jax.nn.relu,
+            activation=jax.nn.relu,  # pyright: ignore[reportArgumentType]
             key=k_enc,
         )
 
-        conv = conv_cls(latent_dim, latent_dim, key=k_conv, **conv_kwargs)
+        conv = conv_cls(latent_dim, latent_dim, key=k_conv, **conv_kwargs)  # pyright: ignore[reportCallIssue]
         self.dynamics = HypergraphNeuralODE(
             conv=conv,
             activation=activation,
@@ -102,7 +102,7 @@ class LatentHypergraphODE(eqx.Module):
             out_size=obs_dim,
             width_size=latent_dim,
             depth=decoder_depth,
-            activation=jax.nn.relu,
+            activation=jax.nn.relu,  # pyright: ignore[reportArgumentType]
             key=k_dec,
         )
 
@@ -144,13 +144,15 @@ class LatentHypergraphODE(eqx.Module):
         )
 
         # Integrate
+        import typing
         sol = self.dynamics(latent_hg, t0=t0, t1=t1, dt0=dt0, saveat=saveat)
 
         if saveat is not None:
             return sol
 
         # Decode final state
-        z1 = sol.ys[-1]
+        ys = typing.cast(Array, sol.ys)
+        z1 = ys[-1]
         return jax.vmap(self.decoder)(z1)
 
 
@@ -217,11 +219,11 @@ class LatentHypergraphSDE(eqx.Module):
             out_size=latent_dim,
             width_size=latent_dim,
             depth=encoder_depth,
-            activation=jax.nn.relu,
+            activation=jax.nn.relu,  # pyright: ignore[reportArgumentType]
             key=k_enc,
         )
 
-        conv = conv_cls(latent_dim, latent_dim, key=k_conv, **conv_kwargs)
+        conv = conv_cls(latent_dim, latent_dim, key=k_conv, **conv_kwargs)  # pyright: ignore[reportCallIssue]
         self.dynamics = HypergraphNeuralSDE(
             conv=conv,
             num_nodes=num_nodes,
@@ -238,7 +240,7 @@ class LatentHypergraphSDE(eqx.Module):
             out_size=obs_dim,
             width_size=latent_dim,
             depth=decoder_depth,
-            activation=jax.nn.relu,
+            activation=jax.nn.relu,  # pyright: ignore[reportArgumentType]
             key=k_dec,
         )
         self.num_nodes = num_nodes
@@ -282,11 +284,13 @@ class LatentHypergraphSDE(eqx.Module):
         )
 
         # Integrate
+        import typing
         sol = self.dynamics(latent_hg, t0=t0, t1=t1, key=key, saveat=saveat)
 
         if saveat is not None:
             return sol
 
         # Decode final state (SDE state is flattened)
-        z1 = sol.ys[-1].reshape(self.num_nodes, self.latent_dim)
+        ys = typing.cast(Array, sol.ys)
+        z1 = ys[-1].reshape(self.num_nodes, self.latent_dim)
         return jax.vmap(self.decoder)(z1)

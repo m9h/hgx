@@ -20,7 +20,7 @@ from collections.abc import Callable
 import equinox as eqx
 import jax
 import jax.numpy as jnp
-from jaxtyping import Array, Float, PRNGKeyArray
+from jaxtyping import Array, Float, PRNGKeyArray, Real
 
 from hgx._conv._base import AbstractHypergraphConv
 from hgx._hypergraph import Hypergraph
@@ -51,7 +51,7 @@ class _ConvDrift(eqx.Module):
 
     def __call__(
         self,
-        t: Float[Array, ""],
+        t: Real[Array, ""],
         y: Float[Array, "n d"],
         args: dict,
     ) -> Float[Array, "n d"]:
@@ -81,7 +81,7 @@ class _FlatConvDrift(eqx.Module):
 
     def __call__(
         self,
-        t: Float[Array, ""],
+        t: Real[Array, ""],
         y: Float[Array, " nd"],
         args: dict,
     ) -> Float[Array, " nd"]:
@@ -110,7 +110,7 @@ class _DiagonalDiffusion(eqx.Module):
 
     def __call__(
         self,
-        t: Float[Array, ""],
+        t: Real[Array, ""],
         y: Float[Array, " nd"],
         args: dict,
     ):
@@ -137,7 +137,7 @@ class _CDEDrift(eqx.Module):
 
     def __call__(
         self,
-        t: Float[Array, ""],
+        t: Real[Array, ""],
         y: Float[Array, "n d"],
         args: dict,
     ) -> Float[Array, "n d"]:
@@ -257,7 +257,7 @@ class HypergraphNeuralODE(eqx.Module):
         if saveat is None:
             saveat = diffrax.SaveAt(t1=True)
 
-        term = diffrax.ODETerm(self.drift)
+        term = diffrax.ODETerm(self.drift)  # pyright: ignore[reportArgumentType]
         sol = diffrax.diffeqsolve(
             term,
             self.solver,
@@ -384,8 +384,8 @@ class HypergraphNeuralSDE(eqx.Module):
         )
 
         terms = diffrax.MultiTerm(
-            diffrax.ODETerm(self.drift),
-            diffrax.ControlTerm(self.diffusion, brownian),
+            diffrax.ODETerm(self.drift),  # pyright: ignore[reportArgumentType]
+            diffrax.ControlTerm(self.diffusion, brownian),  # pyright: ignore[reportArgumentType]
         )
 
         sol = diffrax.diffeqsolve(
@@ -495,7 +495,7 @@ class HypergraphNeuralCDE(eqx.Module):
         args = _hg_to_args(hg)
         args["control_path"] = control_path
 
-        term = diffrax.ODETerm(self.drift)
+        term = diffrax.ODETerm(self.drift)  # pyright: ignore[reportArgumentType]
         sol = diffrax.diffeqsolve(
             term,
             self.solver,
@@ -546,18 +546,24 @@ def evolve(
     if isinstance(model, HypergraphNeuralSDE):
         if key is None:
             raise ValueError("Must provide key for SDE integration.")
+        import typing
         sol = model(hg, t0=t0, t1=t1, key=key)
         # SDE state is flattened (n*d,) -> reshape back
-        new_features = sol.ys[-1].reshape(hg.node_features.shape)
+        ys = typing.cast(Array, sol.ys)
+        new_features = ys[-1].reshape(hg.node_features.shape)
     elif isinstance(model, HypergraphNeuralCDE):
+        import typing
         if ts is None or controls is None:
             raise ValueError("Must provide ts and controls for CDE integration.")
         sol = model(hg, ts=ts, controls=controls, saveat=diffrax.SaveAt(t1=True))
-        new_features = sol.ys[-1]
+        ys = typing.cast(Array, sol.ys)
+        new_features = ys[-1]
     else:
+        import typing
         sol = model(hg, t0=t0, t1=t1)
         # ODE state is (n, d)
-        new_features = sol.ys[-1]
+        ys = typing.cast(Array, sol.ys)
+        new_features = ys[-1]
 
     return Hypergraph(
         node_features=new_features,
@@ -604,14 +610,17 @@ def trajectory(
     ts = jnp.linspace(t0, t1, num_steps)
     saveat = diffrax.SaveAt(ts=ts)
 
+    import typing
     if isinstance(model, HypergraphNeuralSDE):
         if key is None:
             raise ValueError("Must provide key for SDE trajectory.")
         sol = model(hg, t0=t0, t1=t1, key=key, saveat=saveat)
         n, d = model.num_nodes, model.node_dim
-        features = sol.ys.reshape(num_steps, n, d)
+        ys = typing.cast(Array, sol.ys)
+        features = ys.reshape(num_steps, n, d)
     else:
         sol = model(hg, t0=t0, t1=t1, saveat=saveat)
-        features = sol.ys
+        ys = typing.cast(Array, sol.ys)
+        features = ys
 
     return ts, features
