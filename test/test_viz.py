@@ -1,6 +1,8 @@
 """Tests for visualization utilities (Agg backend, no display)."""
 
-import matplotlib
+import pytest
+
+matplotlib = pytest.importorskip("matplotlib")
 
 
 matplotlib.use("Agg")
