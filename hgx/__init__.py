@@ -9,6 +9,12 @@ from hgx._conv import (
     AbstractHypergraphConv as AbstractHypergraphConv,
     LorentzHypergraphConv as LorentzHypergraphConv,
     PoincareHypergraphConv as PoincareHypergraphConv,
+    ProductHypergraphConv as ProductHypergraphConv,
+    ProductManifold as ProductManifold,
+    ProductManifoldConv as ProductManifoldConv,
+    ProductManifoldMLP as ProductManifoldMLP,
+    ProductSpaceConv as ProductSpaceConv,
+    ProductSpaceEmbedding as ProductSpaceEmbedding,
     SheafDiffusion as SheafDiffusion,
     SheafHypergraphConv as SheafHypergraphConv,
     THNNConv as THNNConv,
@@ -31,6 +37,19 @@ from hgx._hypergraph import (
     from_incidence as from_incidence,
     Hypergraph as Hypergraph,
 )
+from hgx._info_geometry import (
+    fisher_rao_distance as fisher_rao_distance,
+    fisher_rao_metric as fisher_rao_metric,
+    free_energy as free_energy,
+    info_belief_update as info_belief_update,
+    InfoGeometricDynamics as InfoGeometricDynamics,
+    js_divergence as js_divergence,
+    kl_divergence as kl_divergence,
+    natural_gradient as natural_gradient,
+    natural_gradient_descent as natural_gradient_descent,
+    symmetrized_kl as symmetrized_kl,
+    wasserstein_on_simplex as wasserstein_on_simplex,
+)
 from hgx._model import (
     HGNNStack as HGNNStack,
 )
@@ -38,6 +57,21 @@ from hgx._ndp import (
     CellProgram as CellProgram,
     develop_trajectory as develop_trajectory,
     HypergraphNDP as HypergraphNDP,
+)
+from hgx._ot import (
+    feature_cost_matrix as feature_cost_matrix,
+    gromov_wasserstein as gromov_wasserstein,
+    hypergraph_gromov_wasserstein as hypergraph_gromov_wasserstein,
+    hypergraph_wasserstein as hypergraph_wasserstein,
+    ot_hyperedge_aggregation as ot_hyperedge_aggregation,
+    ot_hypergraph_alignment as ot_hypergraph_alignment,
+    OTConv as OTConv,
+    OTLayer as OTLayer,
+    sinkhorn as sinkhorn,
+    structural_cost_matrix as structural_cost_matrix,
+    unbalanced_sinkhorn as unbalanced_sinkhorn,
+    wasserstein_barycenter as wasserstein_barycenter,
+    wasserstein_distance as wasserstein_distance,
 )
 from hgx._perturbation import (
     in_silico_knockout as in_silico_knockout,
@@ -82,6 +116,13 @@ from hgx._transforms import (
     clique_expansion as clique_expansion,
     hypergraph_laplacian as hypergraph_laplacian,
 )
+from hgx._wavelets import (
+    cheeger_constant_bound as cheeger_constant_bound,
+    hypergraph_scattering as hypergraph_scattering,
+    hypergraph_wavelet_transform as hypergraph_wavelet_transform,
+    HypergraphWaveletLayer as HypergraphWaveletLayer,
+    spectral_features as spectral_features,
+)
 
 
 try:
@@ -108,6 +149,11 @@ try:
         PoincareBall as PoincareBall,
         riemannian_trajectory as riemannian_trajectory,
         RiemannianHypergraphODE as RiemannianHypergraphODE,
+    )
+    from hgx._info_geometry import (
+        FisherRaoDrift as FisherRaoDrift,
+        FreeEnergyDrift as FreeEnergyDrift,
+        InfoGeometricODE as InfoGeometricODE,
     )
     from hgx._latent import (
         LatentHypergraphODE as LatentHypergraphODE,
