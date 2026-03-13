@@ -10,9 +10,18 @@ Standard graphs model pairwise relationships. But many systems — cell signalin
 
 ## Features
 
-- **Core data structure** (`Hypergraph`) with incidence matrix representation, optional geometry (3D positions), and masking for dynamic topology
-- **First-order convolution** (`UniGCNConv`) — two-stage vertex-to-hyperedge-to-vertex message passing. Reduces to GCN on pairwise graphs.
-- **Tensorized convolution** (`THNNConv`) — high-order multilinear interactions via CP decomposition. Captures joint effects that sum-aggregation misses. First open-source implementation of [Wang et al., SDM 2024](https://arxiv.org/abs/2306.02560).
+- **Core data structure** (`Hypergraph`) with incidence matrix representation, optional geometry (Euclidean, Poincaré, Lorentz), and masking for dynamic topology
+- **6 convolution layers:**
+  - `UniGCNConv` — first-order sum-aggregation message passing; reduces to GCN on pairwise graphs
+  - `UniGCNSparseConv` — segment-sum drop-in replacement for UniGCN (O(nnz) instead of O(n·m))
+  - `UniGATConv` — learned attention weights in the hyperedge → vertex step
+  - `UniGINConv` — GIN-style MLP aggregation with a learnable self-loop parameter ε
+  - `THNNConv` — tensorized high-order interactions via CP decomposition ([Wang et al., SDM 2024](https://arxiv.org/abs/2306.02560))
+  - `THNNSparseConv` — sparse variant of THNN
+- **HGNNStack** — multi-layer model builder with activation, dropout, and optional readout
+- **Dynamic topology** — `preallocate`, `add_node`, `remove_node`, `add_hyperedge`, `remove_hyperedge` (all JIT-compatible)
+- **Sparse message passing** — `incidence_to_star_expansion`, `vertex_to_edge`, `edge_to_vertex` via `jax.ops.segment_sum`
+- **Visualization** — `draw_hypergraph`, `draw_incidence`, `draw_attention` (requires `hgx[viz]`)
 - **Transforms** — clique expansion, hypergraph Laplacian
 - **JAX-native** — JIT, vmap, and grad all work out of the box
 - **Equinox modules** — composable with any Equinox/JAX workflow
@@ -23,12 +32,18 @@ Standard graphs model pairwise relationships. But many systems — cell signalin
 pip install hgx
 ```
 
-Or for development:
+With visualization support:
+
+```bash
+pip install "hgx[viz]"
+```
+
+For development:
 
 ```bash
 git clone https://github.com/m9h/hgx.git
 cd hgx
-uv venv && uv pip install -e ".[tests]"
+uv venv && uv pip install -e ".[tests,viz]"
 uv run pytest
 ```
 
@@ -50,21 +65,74 @@ hg = hgx.from_edge_list(
 conv = hgx.UniGCNConv(in_dim=16, out_dim=32, key=jax.random.PRNGKey(0))
 out = conv(hg)  # (4, 32)
 
+# Attention-based convolution (UniGAT)
+attn_conv = hgx.UniGATConv(in_dim=16, out_dim=32, key=jax.random.PRNGKey(1))
+out_attn = attn_conv(hg)  # (4, 32)
+
 # Tensorized convolution (THNN) — captures higher-order interactions
-conv_ho = hgx.THNNConv(in_dim=16, out_dim=32, rank=64, key=jax.random.PRNGKey(1))
+conv_ho = hgx.THNNConv(in_dim=16, out_dim=32, rank=64, key=jax.random.PRNGKey(2))
 out_ho = conv_ho(hg)  # (4, 32)
 
+# Multi-layer model with HGNNStack
+model = hgx.HGNNStack(
+    conv_dims=[(16, 32), (32, 32)],
+    conv_cls=hgx.UniGCNConv,
+    readout_dim=4,
+    dropout_rate=0.1,
+    key=jax.random.PRNGKey(3),
+)
+logits = model(hg, key=jax.random.PRNGKey(4))  # (4, 4)
+
 # Gradients work
-def loss_fn(model):
-    return jnp.sum(model(hg))
-grads = jax.grad(loss_fn)(conv)
+def loss_fn(m):
+    return jnp.sum(m(hg, inference=True))
+grads = jax.grad(loss_fn)(model)
 ```
+
+## Dynamic topology
+
+Grow or shrink a hypergraph at runtime — all operations are JIT-compatible:
+
+```python
+# Pre-allocate capacity for up to 8 nodes and 4 hyperedges
+hg = hgx.preallocate(hg, max_nodes=8, max_edges=4)
+
+# Add a new node with features, connected to hyperedge 0
+new_feats = jnp.ones(16)
+membership = jnp.array([True, False])  # belongs to edge 0 only
+hg = hgx.add_node(hg, features=new_feats, hyperedges=membership)
+
+# Add a new hyperedge spanning nodes 0 and 3
+members = jnp.array([True, False, False, True, False, False, False, False])
+hg = hgx.add_hyperedge(hg, members=members)
+
+# Convolutions work on the updated topology
+out = conv(hg)
+```
+
+## Visualization
+
+Requires the `viz` extra (`pip install "hgx[viz]"`):
+
+```python
+import hgx
+
+hg = hgx.from_edge_list([(0, 1, 2), (2, 3), (3, 4, 5)])
+
+# Draw bipartite star-expansion layout
+ax = hgx.draw_hypergraph(hg, title="My hypergraph")
+
+# Show the incidence matrix as a heatmap
+ax = hgx.draw_incidence(hg)
+```
+
+See [`examples/visualize_hypergraph.py`](examples/visualize_hypergraph.py) for a complete example.
 
 ## Design
 
 The data structure is designed to be forward-compatible with:
 - **Combinatorial complexes** (multi-rank cells with hierarchy)
-- **Geometric embeddings** (3D positions, SE(3) equivariance)
+- **Geometric embeddings** (Euclidean, Poincaré, and Lorentz positions via the `geometry` field)
 - **Dynamic topology** (node/edge birth via pre-allocated masked arrays)
 - **Diffrax integration** (neural SDEs/ODEs on evolving hypergraphs)
 
@@ -72,12 +140,19 @@ while keeping the common hypergraph case simple.
 
 ## Roadmap
 
-| Phase | Status |
-|-------|--------|
+| Feature | Status |
+|---------|--------|
 | Static hypergraph convolutions (UniGCN, THNN) | Done |
 | Clique expansion, Laplacian | Done |
 | JIT/grad/vmap compatibility | Done |
-| Dynamic topology (node birth/death) | Planned |
+| Attention convolution (UniGAT) | Done |
+| GIN convolution (UniGIN) | Done |
+| Sparse variants (UniGCNSparse, THNNSparse) | Done |
+| Dynamic topology (add/remove nodes & edges) | Done |
+| HGNNStack multi-layer model builder | Done |
+| Visualization (draw_hypergraph, draw_incidence, draw_attention) | Done |
+| Geometry field (Euclidean, Poincaré, Lorentz) | Done |
+| CI + docs | In progress |
 | Diffrax integration (Neural SDE on growth) | Planned |
 | NDP (Neural Developmental Programs) on hypergraphs | Planned |
 | SE(3)-equivariant hypergraph layers | Planned |

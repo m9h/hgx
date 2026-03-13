@@ -5,21 +5,49 @@ Topological and geometric deep learning on higher-order domains.
 
 import importlib.metadata
 
-from hgx._hypergraph import (
-    Hypergraph as Hypergraph,
-    from_adjacency as from_adjacency,
-    from_edge_list as from_edge_list,
-    from_incidence as from_incidence,
-)
 from hgx._conv import (
     AbstractHypergraphConv as AbstractHypergraphConv,
     THNNConv as THNNConv,
+    THNNSparseConv as THNNSparseConv,
+    UniGATConv as UniGATConv,
     UniGCNConv as UniGCNConv,
+    UniGCNSparseConv as UniGCNSparseConv,
+    UniGINConv as UniGINConv,
+)
+from hgx._dynamic import (
+    add_hyperedge as add_hyperedge,
+    add_node as add_node,
+    preallocate as preallocate,
+    remove_hyperedge as remove_hyperedge,
+    remove_node as remove_node,
+)
+from hgx._hypergraph import (
+    from_adjacency as from_adjacency,
+    from_edge_list as from_edge_list,
+    from_incidence as from_incidence,
+    Hypergraph as Hypergraph,
+)
+from hgx._model import (
+    HGNNStack as HGNNStack,
+)
+from hgx._sparse import (
+    edge_to_vertex as edge_to_vertex,
+    incidence_to_star_expansion as incidence_to_star_expansion,
+    vertex_to_edge as vertex_to_edge,
 )
 from hgx._transforms import (
     clique_expansion as clique_expansion,
     hypergraph_laplacian as hypergraph_laplacian,
 )
 
+
+try:
+    from hgx._viz import (
+        draw_attention as draw_attention,
+        draw_hypergraph as draw_hypergraph,
+        draw_incidence as draw_incidence,
+    )
+except ImportError:
+    pass
 
 __version__ = importlib.metadata.version("hgx")

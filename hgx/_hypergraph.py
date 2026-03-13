@@ -15,7 +15,6 @@ jax.ops.segment_sum.
 from __future__ import annotations
 
 import equinox as eqx
-import jax
 import jax.numpy as jnp
 from jaxtyping import Array, Bool, Float, Int
 
@@ -33,6 +32,9 @@ class Hypergraph(eqx.Module):
         node_mask: Boolean mask of shape (num_nodes,). True for active nodes.
             Supports dynamic topology via pre-allocated arrays.
         edge_mask: Boolean mask of shape (num_edges,). True for active hyperedges.
+        geometry: Coordinate space of positions. None (unspecified),
+            "euclidean", "poincare" (Poincaré ball), or "lorentz" (hyperboloid).
+            Static metadata — does not affect computation unless a layer checks it.
     """
 
     node_features: Float[Array, "n d"]
@@ -41,6 +43,8 @@ class Hypergraph(eqx.Module):
     positions: Float[Array, "n s"] | None = None
     node_mask: Bool[Array, " n"] | None = None
     edge_mask: Bool[Array, " m"] | None = None
+    geometry: str | None = eqx.field(default=None, static=True)
+    # Values: None, "euclidean", "poincare", "lorentz"
 
     @property
     def num_nodes(self) -> int:
@@ -112,6 +116,7 @@ def from_incidence(
     node_features: Float[Array, "n d"] | None = None,
     edge_features: Float[Array, "m de"] | None = None,
     positions: Float[Array, "n s"] | None = None,
+    geometry: str | None = None,
 ) -> Hypergraph:
     """Create a Hypergraph from an incidence matrix.
 
@@ -120,6 +125,8 @@ def from_incidence(
         node_features: Optional node features. Defaults to ones of dim 1.
         edge_features: Optional hyperedge features.
         positions: Optional spatial coordinates for nodes.
+        geometry: Coordinate space of positions (None, "euclidean",
+            "poincare", "lorentz").
 
     Returns:
         A Hypergraph instance.
@@ -132,6 +139,7 @@ def from_incidence(
         incidence=incidence,
         edge_features=edge_features,
         positions=positions,
+        geometry=geometry,
     )
 
 
@@ -155,10 +163,18 @@ def from_edge_list(
     if num_nodes is None:
         num_nodes = max(v for e in edges for v in e) + 1
     num_edges = len(edges)
-    H = jnp.zeros((num_nodes, num_edges))
+
+    # Build incidence via vectorized scatter: flatten all (vertex, edge) pairs
+    all_v = []
+    all_e = []
     for k, edge in enumerate(edges):
         for v in edge:
-            H = H.at[v, k].set(1.0)
+            all_v.append(v)
+            all_e.append(k)
+    v_arr = jnp.array(all_v, dtype=jnp.int32)
+    e_arr = jnp.array(all_e, dtype=jnp.int32)
+    H = jnp.zeros((num_nodes, num_edges)).at[v_arr, e_arr].set(1.0)
+
     return from_incidence(H, node_features=node_features)
 
 
@@ -178,11 +194,16 @@ def from_adjacency(
     Returns:
         A Hypergraph with 2-uniform hyperedges.
     """
-    rows, cols = jnp.nonzero(jnp.triu(adjacency, k=1), size=int(jnp.sum(jnp.triu(adjacency, k=1) > 0)))
+    upper = jnp.triu(adjacency, k=1)
+    num_edges_count = int(jnp.sum(upper > 0))
+    rows, cols = jnp.nonzero(upper, size=num_edges_count)
     num_nodes = adjacency.shape[0]
     num_edges = rows.shape[0]
+
+    # Vectorized: each edge k connects rows[k] and cols[k]
+    edge_indices = jnp.arange(num_edges)
     H = jnp.zeros((num_nodes, num_edges))
-    for k in range(num_edges):
-        H = H.at[int(rows[k]), k].set(1.0)
-        H = H.at[int(cols[k]), k].set(1.0)
+    H = H.at[rows, edge_indices].set(1.0)
+    H = H.at[cols, edge_indices].set(1.0)
+
     return from_incidence(H, node_features=node_features)

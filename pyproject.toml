@@ -39,6 +39,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pre-commit", "ruff"]
 tests = ["pytest", "beartype"]
+viz = ["matplotlib", "networkx"]
 docs = [
     "mkdocs",
     "mkdocs-material",

@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
-import jax.numpy as jnp
 from jaxtyping import Array, Bool, Float, Int
 
 
