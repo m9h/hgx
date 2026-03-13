@@ -1,0 +1,78 @@
+[project]
+name = "hgx"
+version = "0.1.0"
+description = "Hypergraph neural networks in JAX/Equinox. Topological and geometric deep learning on higher-order domains."
+readme = "README.md"
+authors = [
+    {name = "Morgan G Hough", email = "morgan.g.hough@gmail.com"},
+]
+license = {text = "Apache-2.0"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+keywords = [
+    "jax",
+    "equinox",
+    "hypergraph",
+    "graph-neural-networks",
+    "topological-deep-learning",
+    "geometric-deep-learning",
+    "computational-biology",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "jax>=0.4.30,<0.5",
+    "jaxlib>=0.4.30,<0.5",
+    "equinox>=0.11.0",
+    "jaxtyping>=0.2.24",
+    "typing_extensions>=4.5.0",
+]
+
+[project.optional-dependencies]
+dev = ["pre-commit", "ruff"]
+tests = ["pytest", "beartype"]
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings[python]",
+]
+
+[project.urls]
+repository = "https://github.com/m9h/hgx"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+include = ["hgx/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+src = []
+
+[tool.ruff.lint]
+fixable = ["I001", "F401", "UP"]
+ignore = ["E402", "E721", "E731", "E741", "F722"]
+select = ["E", "F", "I001", "UP"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+extra-standard-library = ["typing_extensions"]
+lines-after-imports = 2
+order-by-type = false
+
+[tool.pyright]
+include = ["hgx", "test"]
+reportIncompatibleMethodOverride = true
