@@ -1,9 +1,7 @@
 """Tests for the core Hypergraph data structure."""
 
-import jax.numpy as jnp
-import pytest
-
 import hgx
+import jax.numpy as jnp
 
 
 class TestHypergraphConstruction:

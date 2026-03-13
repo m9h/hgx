@@ -1,11 +1,9 @@
 """Tests for hypergraph convolution layers."""
 
 import equinox as eqx
+import hgx
 import jax
 import jax.numpy as jnp
-import pytest
-
-import hgx
 
 
 class TestUniGCNConv:
@@ -245,8 +243,12 @@ class TestTHNNSparseConv:
 
     def test_equivalence_unnormalized(self, tiny_hypergraph, prng_key):
         """Sparse and dense should also match without normalization."""
-        dense = hgx.THNNConv(in_dim=2, out_dim=4, rank=16, normalize=False, key=prng_key)
-        sparse = hgx.THNNSparseConv(in_dim=2, out_dim=4, rank=16, normalize=False, key=prng_key)
+        dense = hgx.THNNConv(
+            in_dim=2, out_dim=4, rank=16, normalize=False, key=prng_key,
+        )
+        sparse = hgx.THNNSparseConv(
+            in_dim=2, out_dim=4, rank=16, normalize=False, key=prng_key,
+        )
 
         sparse = eqx.tree_at(lambda m: m.theta, sparse, dense.theta)
         sparse = eqx.tree_at(lambda m: m.q, sparse, dense.q)

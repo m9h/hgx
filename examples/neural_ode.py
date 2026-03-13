@@ -15,10 +15,9 @@ from pathlib import Path
 
 import diffrax
 import equinox as eqx
+import hgx
 import jax
 import jax.numpy as jnp
-
-import hgx
 
 
 def main():
@@ -47,7 +46,7 @@ def main():
     # ------------------------------------------------------------------
     conv = hgx.UniGCNConv(in_dim=feat_dim, out_dim=feat_dim, key=k2)
     neural_ode = hgx.HypergraphNeuralODE(conv)
-    print(f"\nNeural ODE: dx/dt = tanh(UniGCNConv(x(t), H))")
+    print("\nNeural ODE: dx/dt = tanh(UniGCNConv(x(t), H))")
 
     # ------------------------------------------------------------------
     # 3. Integrate with intermediate snapshots

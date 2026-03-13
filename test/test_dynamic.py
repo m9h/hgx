@@ -1,11 +1,9 @@
 """Tests for dynamic topology operations."""
 
 import equinox as eqx
-import jax
+import hgx
 import jax.numpy as jnp
 import pytest
-
-import hgx
 
 
 @pytest.fixture

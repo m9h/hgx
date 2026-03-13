@@ -10,11 +10,10 @@ Requires: pip install hgx[dynamics] optax
 """
 
 import equinox as eqx
+import hgx
 import jax
 import jax.numpy as jnp
 import optax
-
-import hgx
 from hgx._dynamics import HypergraphNeuralODE
 
 
@@ -65,8 +64,8 @@ def main():
     try:
         import matplotlib
         matplotlib.use("Agg")
-        import matplotlib.pyplot as plt
         import diffrax
+        import matplotlib.pyplot as plt
 
         ts = jnp.linspace(0.0, 1.0, 50)
         sol = model(hg, t0=0.0, t1=1.0, saveat=diffrax.SaveAt(ts=ts))

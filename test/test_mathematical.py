@@ -6,11 +6,10 @@ worked expected result.  All assertions use jnp.allclose with atol=1e-5.
 """
 
 import equinox as eqx
+import hgx
 import jax
 import jax.numpy as jnp
 import pytest
-
-import hgx
 
 
 @pytest.fixture

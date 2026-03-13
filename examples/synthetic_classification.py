@@ -5,11 +5,10 @@ models — UniGCNConv and THNNConv — comparing their accuracy.
 """
 
 import equinox as eqx
+import hgx
 import jax
 import jax.numpy as jnp
 import optax
-
-import hgx
 
 
 # ---------------------------------------------------------------------------
@@ -143,7 +142,9 @@ def main():
     hg, labels = make_synthetic_data(k_data)
     print(f"  Nodes: {hg.num_nodes}  Edges: {hg.num_edges}  "
           f"Feature dim: {hg.node_dim}")
-    print(f"  Class balance: {int(jnp.sum(labels == 0))} / {int(jnp.sum(labels == 1))}\n")
+    n0 = int(jnp.sum(labels == 0))
+    n1 = int(jnp.sum(labels == 1))
+    print(f"  Class balance: {n0} / {n1}\n")
 
     feat_dim = hg.node_dim
 

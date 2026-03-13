@@ -8,10 +8,9 @@ Usage::
     uv run python examples/dynamic_topology.py
 """
 
+import hgx
 import jax
 import jax.numpy as jnp
-
-import hgx
 
 
 def main():

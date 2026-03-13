@@ -5,11 +5,9 @@ tracing. These tests verify the JAX contract is maintained.
 """
 
 import equinox as eqx
+import hgx
 import jax
 import jax.numpy as jnp
-import pytest
-
-import hgx
 
 
 class TestJIT:

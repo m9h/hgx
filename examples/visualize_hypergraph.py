@@ -11,12 +11,14 @@ Usage::
 from pathlib import Path
 
 import matplotlib
+
+
 matplotlib.use("Agg")
 
+import hgx
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
-import hgx
 
 # ---------- Build a small hypergraph ----------
 # 6 nodes, 4 hyperedges of varying size:

@@ -1,11 +1,9 @@
 """Tests for multi-layer HGNNStack model."""
 
 import equinox as eqx
+import hgx
 import jax
 import jax.numpy as jnp
-import pytest
-
-import hgx
 
 
 class TestHGNNStack:

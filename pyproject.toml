@@ -40,7 +40,9 @@ dependencies = [
 dev = ["pre-commit", "ruff", "optax"]
 tests = ["pytest", "beartype"]
 viz = ["matplotlib", "networkx"]
+data = []
 dynamics = ["diffrax>=0.6.0"]
+pgmax = ["pgmax"]
 docs = [
     "mkdocs",
     "mkdocs-material",
@@ -60,6 +62,9 @@ include = ["hgx/*"]
 [tool.pytest.ini_options]
 testpaths = ["test"]
 addopts = "-v --tb=short"
+markers = [
+    "slow: tests that require network access (deselect with -m 'not slow')",
+]
 
 [tool.ruff]
 src = []

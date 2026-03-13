@@ -1,10 +1,9 @@
 """Shared test fixtures for hgx tests."""
 
+import hgx
 import jax
 import jax.numpy as jnp
 import pytest
-
-import hgx
 
 
 @pytest.fixture

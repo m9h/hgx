@@ -1,9 +1,7 @@
 """Tests for hypergraph transformation utilities."""
 
-import jax.numpy as jnp
-import pytest
-
 import hgx
+import jax.numpy as jnp
 
 
 class TestCliqueExpansion:

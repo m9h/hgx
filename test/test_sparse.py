@@ -1,11 +1,9 @@
 """Tests for sparse message passing and UniGCNSparseConv."""
 
 import equinox as eqx
+import hgx
 import jax
 import jax.numpy as jnp
-import pytest
-
-import hgx
 from hgx._sparse import edge_to_vertex, incidence_to_star_expansion, vertex_to_edge
 
 

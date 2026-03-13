@@ -30,6 +30,11 @@ from hgx._hypergraph import (
 from hgx._model import (
     HGNNStack as HGNNStack,
 )
+from hgx._ndp import (
+    CellProgram as CellProgram,
+    develop_trajectory as develop_trajectory,
+    HypergraphNDP as HypergraphNDP,
+)
 from hgx._sparse import (
     edge_to_vertex as edge_to_vertex,
     incidence_to_star_expansion as incidence_to_star_expansion,
@@ -57,12 +62,32 @@ except ImportError:
     pass
 
 try:
+    from hgx._data import (
+        load_cell_lineage as load_cell_lineage,
+        load_connectome as load_connectome,
+        load_devograph as load_devograph,
+        load_synthetic_karate as load_synthetic_karate,
+    )
+except ImportError:
+    pass
+
+try:
     from hgx._viz import (
         draw_attention as draw_attention,
         draw_hypergraph as draw_hypergraph,
         draw_incidence as draw_incidence,
         draw_phase_portrait as draw_phase_portrait,
         draw_trajectory as draw_trajectory,
+    )
+except ImportError:
+    pass
+
+try:
+    from hgx._pgmax import (
+        ActiveInferenceStep as ActiveInferenceStep,
+        hypergraph_to_factor_graph as hypergraph_to_factor_graph,
+        learn_potentials as learn_potentials,
+        run_cell_fate_inference as run_cell_fate_inference,
     )
 except ImportError:
     pass
