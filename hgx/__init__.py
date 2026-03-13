@@ -7,6 +7,8 @@ import importlib.metadata
 
 from hgx._conv import (
     AbstractHypergraphConv as AbstractHypergraphConv,
+    LorentzHypergraphConv as LorentzHypergraphConv,
+    PoincareHypergraphConv as PoincareHypergraphConv,
     THNNConv as THNNConv,
     THNNSparseConv as THNNSparseConv,
     UniGATConv as UniGATConv,
@@ -54,10 +56,22 @@ try:
         HypergraphNeuralSDE as HypergraphNeuralSDE,
         trajectory as trajectory,
     )
+    from hgx._geometric_dynamics import (
+        AbstractManifold as AbstractManifold,
+        EuclideanManifold as EuclideanManifold,
+        PoincareBall as PoincareBall,
+        riemannian_trajectory as riemannian_trajectory,
+        RiemannianHypergraphODE as RiemannianHypergraphODE,
+    )
     from hgx._latent import (
         LatentHypergraphODE as LatentHypergraphODE,
         LatentHypergraphSDE as LatentHypergraphSDE,
     )
+except ImportError:
+    pass
+
+try:
+    from hgx._conv._se3 import SE3HypergraphConv as SE3HypergraphConv
 except ImportError:
     pass
 
