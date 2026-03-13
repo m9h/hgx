@@ -330,8 +330,15 @@ def draw_trajectory(
         color = cmap(ni % cmap.N)
         for fi, fdim in enumerate(fdims):
             ls = linestyles[fi % len(linestyles)]
-            label = f"node {node}" if len(fdims) == 1 else f"node {node}, dim {fdim}"
-            ax.plot(ts_np, feat_np[:, node, fdim], color=color, linestyle=ls, label=label)
+            label = (
+                f"node {node}"
+                if len(fdims) == 1
+                else f"node {node}, dim {fdim}"
+            )
+            ax.plot(
+                ts_np, feat_np[:, node, fdim],
+                color=color, linestyle=ls, label=label,
+            )
 
     ax.set_xlabel("Time")
     ax.set_ylabel("Feature value")

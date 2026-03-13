@@ -37,7 +37,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pre-commit", "ruff"]
+dev = ["pre-commit", "ruff", "optax"]
 tests = ["pytest", "beartype"]
 viz = ["matplotlib", "networkx"]
 dynamics = ["diffrax>=0.6.0"]

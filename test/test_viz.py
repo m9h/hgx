@@ -114,3 +114,48 @@ class TestDrawAttention:
         ax = draw_attention(tiny_hypergraph, conv, title="Attn")
         assert ax.get_title() == "Attn"
         plt.close("all")
+
+
+class TestDrawTrajectory:
+    def test_returns_axes(self):
+        ts = jnp.linspace(0.0, 1.0, 20)
+        features = jnp.ones((20, 4, 3))
+        ax = draw_trajectory(ts, features)
+        assert isinstance(ax, matplotlib.axes.Axes)
+        plt.close("all")
+
+    def test_node_and_feature_indices(self):
+        ts = jnp.linspace(0.0, 1.0, 10)
+        features = jax.random.normal(jax.random.PRNGKey(0), (10, 6, 4))
+        ax = draw_trajectory(
+            ts, features, node_indices=[0, 2], feature_indices=[1, 3]
+        )
+        assert isinstance(ax, matplotlib.axes.Axes)
+        plt.close("all")
+
+    def test_with_title(self):
+        ts = jnp.linspace(0.0, 1.0, 5)
+        features = jnp.zeros((5, 2, 2))
+        ax = draw_trajectory(ts, features, title="Traj")
+        assert ax.get_title() == "Traj"
+        plt.close("all")
+
+
+class TestDrawPhasePortrait:
+    def test_returns_axes(self):
+        features = jax.random.normal(jax.random.PRNGKey(0), (20, 4, 3))
+        ax = draw_phase_portrait(features)
+        assert isinstance(ax, matplotlib.axes.Axes)
+        plt.close("all")
+
+    def test_custom_dims(self):
+        features = jax.random.normal(jax.random.PRNGKey(0), (20, 4, 5))
+        ax = draw_phase_portrait(features, dims=(1, 3), node_indices=[0, 2])
+        assert isinstance(ax, matplotlib.axes.Axes)
+        plt.close("all")
+
+    def test_with_title(self):
+        features = jnp.zeros((10, 2, 2))
+        ax = draw_phase_portrait(features, title="Phase")
+        assert ax.get_title() == "Phase"
+        plt.close("all")
