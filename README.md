@@ -10,17 +10,18 @@ Standard graphs model pairwise relationships. But many systems — cell signalin
 
 ## Features
 
-- **Core data structure** (`Hypergraph`) with incidence matrix representation, optional geometry (Euclidean, Poincaré, Lorentz), and masking for dynamic topology
+- **Core data structure** (`Hypergraph`) with incidence matrix representation, optional geometry (Euclidean, Poincare, Lorentz), and masking for dynamic topology
 - **6 convolution layers:**
   - `UniGCNConv` — first-order sum-aggregation message passing; reduces to GCN on pairwise graphs
-  - `UniGCNSparseConv` — segment-sum drop-in replacement for UniGCN (O(nnz) instead of O(n·m))
-  - `UniGATConv` — learned attention weights in the hyperedge → vertex step
-  - `UniGINConv` — GIN-style MLP aggregation with a learnable self-loop parameter ε
+  - `UniGCNSparseConv` — segment-sum drop-in replacement for UniGCN (O(nnz) instead of O(n*m))
+  - `UniGATConv` — learned attention weights in the hyperedge-to-vertex step
+  - `UniGINConv` — GIN-style MLP aggregation with a learnable self-loop parameter
   - `THNNConv` — tensorized high-order interactions via CP decomposition ([Wang et al., SDM 2024](https://arxiv.org/abs/2306.02560))
   - `THNNSparseConv` — sparse variant of THNN
 - **HGNNStack** — multi-layer model builder with activation, dropout, and optional readout
 - **Dynamic topology** — `preallocate`, `add_node`, `remove_node`, `add_hyperedge`, `remove_hyperedge` (all JIT-compatible)
 - **Sparse message passing** — `incidence_to_star_expansion`, `vertex_to_edge`, `edge_to_vertex` via `jax.ops.segment_sum`
+- **Continuous dynamics** — `HypergraphNeuralODE` and `HypergraphNeuralSDE` via [Diffrax](https://docs.kidger.site/diffrax/), with the `evolve` convenience wrapper (requires `hgx[dynamics]`)
 - **Visualization** — `draw_hypergraph`, `draw_incidence`, `draw_attention` (requires `hgx[viz]`)
 - **Transforms** — clique expansion, hypergraph Laplacian
 - **JAX-native** — JIT, vmap, and grad all work out of the box
@@ -29,13 +30,16 @@ Standard graphs model pairwise relationships. But many systems — cell signalin
 ## Installation
 
 ```bash
-pip install hgx
+pip install hgx                  # core library
+pip install "hgx[dynamics]"      # adds diffrax for Neural ODE/SDE
+pip install "hgx[viz]"           # adds matplotlib + networkx
+pip install "hgx[dynamics,viz]"  # everything
 ```
 
-With visualization support:
+With conda (once the feedstock is published):
 
 ```bash
-pip install "hgx[viz]"
+conda install -c conda-forge hgx
 ```
 
 For development:
@@ -43,7 +47,7 @@ For development:
 ```bash
 git clone https://github.com/m9h/hgx.git
 cd hgx
-uv venv && uv pip install -e ".[tests,viz]"
+uv venv && uv pip install -e ".[tests,dynamics,viz]"
 uv run pytest
 ```
 
@@ -89,6 +93,41 @@ def loss_fn(m):
 grads = jax.grad(loss_fn)(model)
 ```
 
+## Continuous dynamics
+
+Requires the `dynamics` extra (`pip install "hgx[dynamics]"`). Node features evolve as a Neural ODE or Neural SDE whose vector field is a hypergraph convolution:
+
+```python
+import jax
+import jax.numpy as jnp
+import hgx
+
+hg = hgx.from_edge_list(
+    [(0, 1, 2), (1, 2, 3)],
+    node_features=jnp.ones((4, 8)),
+)
+
+# Build a Neural ODE: dx/dt = tanh(conv(x(t), H))
+conv = hgx.UniGCNConv(in_dim=8, out_dim=8, key=jax.random.PRNGKey(0))
+neural_ode = hgx.HypergraphNeuralODE(conv)
+
+# Integrate from t=0 to t=1
+sol = neural_ode(hg, t0=0.0, t1=1.0, dt0=0.1)
+final_features = sol.ys[-1]  # (4, 8)
+
+# Or use the convenience wrapper
+hg_evolved = hgx.evolve(neural_ode, hg, t0=0.0, t1=1.0)
+
+# Neural SDE for stochastic dynamics
+sde = hgx.HypergraphNeuralSDE(
+    conv, num_nodes=4, node_dim=8,
+    sigma_init=0.1, key=jax.random.PRNGKey(1),
+)
+hg_stochastic = hgx.evolve(sde, hg, t0=0.0, t1=1.0, key=jax.random.PRNGKey(2))
+```
+
+See [`examples/neural_ode.py`](examples/neural_ode.py) for a complete example with trajectory visualization.
+
 ## Dynamic topology
 
 Grow or shrink a hypergraph at runtime — all operations are JIT-compatible:
@@ -132,9 +171,9 @@ See [`examples/visualize_hypergraph.py`](examples/visualize_hypergraph.py) for a
 
 The data structure is designed to be forward-compatible with:
 - **Combinatorial complexes** (multi-rank cells with hierarchy)
-- **Geometric embeddings** (Euclidean, Poincaré, and Lorentz positions via the `geometry` field)
+- **Geometric embeddings** (Euclidean, Poincare, and Lorentz positions via the `geometry` field)
 - **Dynamic topology** (node/edge birth via pre-allocated masked arrays)
-- **Diffrax integration** (neural SDEs/ODEs on evolving hypergraphs)
+- **Continuous-time evolution** (Neural ODE/SDE on hypergraphs via Diffrax)
 
 while keeping the common hypergraph case simple.
 
@@ -151,9 +190,9 @@ while keeping the common hypergraph case simple.
 | Dynamic topology (add/remove nodes & edges) | Done |
 | HGNNStack multi-layer model builder | Done |
 | Visualization (draw_hypergraph, draw_incidence, draw_attention) | Done |
-| Geometry field (Euclidean, Poincaré, Lorentz) | Done |
+| Geometry field (Euclidean, Poincare, Lorentz) | Done |
+| Diffrax integration (Neural ODE/SDE) | Done |
 | CI + docs | In progress |
-| Diffrax integration (Neural SDE on growth) | Planned |
 | NDP (Neural Developmental Programs) on hypergraphs | Planned |
 | SE(3)-equivariant hypergraph layers | Planned |
 

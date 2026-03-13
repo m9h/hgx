@@ -42,10 +42,27 @@ from hgx._transforms import (
 
 
 try:
+    from hgx._dynamics import (
+        evolve as evolve,
+        HypergraphNeuralCDE as HypergraphNeuralCDE,
+        HypergraphNeuralODE as HypergraphNeuralODE,
+        HypergraphNeuralSDE as HypergraphNeuralSDE,
+        trajectory as trajectory,
+    )
+    from hgx._latent import (
+        LatentHypergraphODE as LatentHypergraphODE,
+        LatentHypergraphSDE as LatentHypergraphSDE,
+    )
+except ImportError:
+    pass
+
+try:
     from hgx._viz import (
         draw_attention as draw_attention,
         draw_hypergraph as draw_hypergraph,
         draw_incidence as draw_incidence,
+        draw_phase_portrait as draw_phase_portrait,
+        draw_trajectory as draw_trajectory,
     )
 except ImportError:
     pass

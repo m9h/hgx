@@ -1,0 +1,51 @@
+{% set name = "hgx" %}
+{% set version = "0.1.0" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: TODO  # Update after first PyPI release
+
+build:
+  noarch: python
+  number: 0
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+
+requirements:
+  host:
+    - python >=3.11
+    - hatchling
+    - pip
+  run:
+    - python >=3.11
+    - jax >=0.4.30,<0.5
+    - jaxlib >=0.4.30,<0.5
+    - equinox >=0.11.0
+    - jaxtyping >=0.2.24
+    - typing_extensions >=4.5.0
+
+test:
+  imports:
+    - hgx
+  requires:
+    - pytest
+    - beartype
+
+about:
+  home: https://github.com/m9h/hgx
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: Hypergraph neural networks in JAX/Equinox.
+  description: |
+    hgx provides hypergraph neural network layers built on JAX and Equinox
+    for topological and geometric deep learning on higher-order domains.
+    Includes UniGCN, UniGAT, UniGIN, THNN convolutions with dense and sparse
+    variants, dynamic topology operations, and visualization utilities.
+  dev_url: https://github.com/m9h/hgx
+
+extra:
+  recipe-maintainers:
+    - m9h

@@ -122,6 +122,27 @@ members = jnp.zeros(10, dtype=bool).at[1].set(True).at[3].set(True)
 hg = hgx.add_hyperedge(hg, members=members)
 ```
 
+### Continuous-time dynamics
+
+Evolve node features as a Neural ODE or Neural SDE (requires `pip install hgx[dynamics]`):
+
+```python
+# Neural ODE: dx/dt = tanh(conv(Hypergraph(x(t), H)))
+hg = hgx.from_edge_list(
+    [(0, 1, 2), (1, 2, 3)],
+    node_features=jnp.ones((4, 16)),
+)
+conv = hgx.UniGCNConv(in_dim=16, out_dim=16, key=key)
+ode = hgx.HypergraphNeuralODE(conv)
+hg_evolved = hgx.evolve(ode, hg, t0=0.0, t1=1.0)
+
+# Neural SDE: dx = tanh(conv(...)) dt + sigma dW
+sde = hgx.HypergraphNeuralSDE(
+    conv, num_nodes=4, node_dim=16, key=key,
+)
+hg_evolved = hgx.evolve(sde, hg, t0=0.0, t1=1.0, key=key)
+```
+
 ### Transforms
 
 ```python

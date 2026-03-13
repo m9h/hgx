@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: "3.11"
       - run: uv venv
-      - run: uv pip install -e ".[tests,viz]"
+      - run: uv pip install -e ".[tests,viz,dynamics]"
       - run: uv pip install ruff
       - run: uv run ruff check hgx/
       - run: uv run pytest test/ -v --tb=short

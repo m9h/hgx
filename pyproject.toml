@@ -40,6 +40,7 @@ dependencies = [
 dev = ["pre-commit", "ruff"]
 tests = ["pytest", "beartype"]
 viz = ["matplotlib", "networkx"]
+dynamics = ["diffrax>=0.6.0"]
 docs = [
     "mkdocs",
     "mkdocs-material",

@@ -15,6 +15,7 @@ Standard graphs model pairwise relationships. But many systems — cell signalin
 - **Composable model** (`HGNNStack`) for multi-layer architectures with dropout and readout
 - **Dynamic topology** — `preallocate`, `add_node`, `add_hyperedge`, `remove_node`, `remove_hyperedge` for JIT-compatible topology changes
 - **Transforms** — clique expansion, hypergraph Laplacian
+- **Continuous-time dynamics** — `HypergraphNeuralODE` and `HypergraphNeuralSDE` via [Diffrax](https://docs.kidger.site/diffrax/) for evolving node features as differential equations
 - **Sparse utilities** — index-based O(nnz) message passing via star expansion
 - **Visualization** — hypergraph drawing, incidence heatmaps, attention weight visualization
 - **JAX-native** — JIT, vmap, and grad all work out of the box

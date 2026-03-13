@@ -9,7 +9,13 @@ import matplotlib.pyplot as plt
 import pytest
 
 import hgx
-from hgx._viz import draw_attention, draw_hypergraph, draw_incidence
+from hgx._viz import (
+    draw_attention,
+    draw_hypergraph,
+    draw_incidence,
+    draw_phase_portrait,
+    draw_trajectory,
+)
 
 
 @pytest.fixture

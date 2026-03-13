@@ -63,6 +63,7 @@ nav:
       - Hypergraph: api/hypergraph.md
       - Convolution Layers: api/conv.md
       - Model: api/model.md
+      - Dynamics: api/dynamics.md
       - Dynamic Topology: api/dynamic.md
       - Transforms: api/transforms.md
       - Sparse Utilities: api/sparse.md

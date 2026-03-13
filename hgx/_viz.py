@@ -286,3 +286,117 @@ def draw_attention(
         edge_linewidth=scaled,
         **kwargs,
     )
+
+
+def draw_trajectory(
+    ts: np.ndarray,
+    features: np.ndarray,
+    node_indices: Sequence[int] | None = None,
+    feature_indices: Sequence[int] | None = None,
+    ax: matplotlib.axes.Axes | None = None,
+    title: str | None = None,
+) -> matplotlib.axes.Axes:
+    """Plot node feature trajectories over time.
+
+    Args:
+        ts: Time points of shape ``(T,)``.
+        features: Node features of shape ``(T, n, d)``.
+        node_indices: Which nodes to plot. Defaults to all.
+        feature_indices: Which feature dimensions to plot. Defaults to
+            the first dimension only.
+        ax: Matplotlib axes. Created if *None*.
+        title: Plot title.
+
+    Returns:
+        The matplotlib axes used for drawing.
+    """
+    plt, _nx = _ensure_deps()
+    import matplotlib
+
+    if ax is None:
+        _, ax = plt.subplots(figsize=(8, 5))
+
+    ts_np = np.asarray(ts)
+    feat_np = np.asarray(features)
+    _T, n, d = feat_np.shape
+
+    nodes = list(node_indices) if node_indices is not None else list(range(n))
+    fdims = list(feature_indices) if feature_indices is not None else [0]
+
+    cmap = matplotlib.colormaps["tab10"]
+    linestyles = ["-", "--", "-.", ":"]
+
+    for ni, node in enumerate(nodes):
+        color = cmap(ni % cmap.N)
+        for fi, fdim in enumerate(fdims):
+            ls = linestyles[fi % len(linestyles)]
+            label = f"node {node}" if len(fdims) == 1 else f"node {node}, dim {fdim}"
+            ax.plot(ts_np, feat_np[:, node, fdim], color=color, linestyle=ls, label=label)
+
+    ax.set_xlabel("Time")
+    ax.set_ylabel("Feature value")
+    ax.legend(fontsize=7, ncol=2)
+
+    if title is not None:
+        ax.set_title(title)
+
+    return ax
+
+
+def draw_phase_portrait(
+    features: np.ndarray,
+    node_indices: Sequence[int] | None = None,
+    dims: tuple[int, int] = (0, 1),
+    ax: matplotlib.axes.Axes | None = None,
+    title: str | None = None,
+) -> matplotlib.axes.Axes:
+    """Draw a 2D phase portrait of node feature trajectories.
+
+    Args:
+        features: Node features of shape ``(T, n, d)``.
+        node_indices: Which nodes to plot. Defaults to all.
+        dims: Pair of feature dimensions for the x and y axes.
+        ax: Matplotlib axes. Created if *None*.
+        title: Plot title.
+
+    Returns:
+        The matplotlib axes used for drawing.
+    """
+    plt, _nx = _ensure_deps()
+    import matplotlib
+
+    if ax is None:
+        _, ax = plt.subplots(figsize=(6, 6))
+
+    feat_np = np.asarray(features)
+    _T, n, _d = feat_np.shape
+    d0, d1 = dims
+
+    nodes = list(node_indices) if node_indices is not None else list(range(n))
+    cmap = matplotlib.colormaps["tab10"]
+
+    for ni, node in enumerate(nodes):
+        color = cmap(ni % cmap.N)
+        x = feat_np[:, node, d0]
+        y = feat_np[:, node, d1]
+        ax.plot(x, y, color=color, label=f"node {node}", linewidth=1.2)
+        # Start marker
+        ax.plot(x[0], y[0], "o", color=color, markersize=6)
+        # Direction arrows at midpoint
+        mid = len(x) // 2
+        if mid > 0 and mid < len(x) - 1:
+            ax.annotate(
+                "",
+                xy=(x[mid + 1], y[mid + 1]),
+                xytext=(x[mid], y[mid]),
+                arrowprops=dict(arrowstyle="->", color=color, lw=1.5),
+            )
+
+    ax.set_xlabel(f"Feature dim {d0}")
+    ax.set_ylabel(f"Feature dim {d1}")
+    ax.legend(fontsize=7)
+
+    if title is not None:
+        ax.set_title(title)
+
+    return ax
