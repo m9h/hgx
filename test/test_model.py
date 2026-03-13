@@ -60,7 +60,9 @@ class TestHGNNStack:
             key=prng_key,
         )
         # Should raise ValueError if key is not provided during training
-        with pytest.raises(ValueError, match="Must provide key for dropout during training."):
+        with pytest.raises(
+            ValueError, match="Must provide key for dropout during training."
+        ):
             model(tiny_hypergraph, key=None, inference=False)
 
     def test_dropout_disabled_at_inference(self, tiny_hypergraph, prng_key):
