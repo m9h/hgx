@@ -89,9 +89,11 @@ def add_node(
         Updated Hypergraph with one more active node.
     """
     # First False position = first unused slot
-    idx = jnp.argmin(hg.node_mask)
+    import typing
+    node_mask = typing.cast(Array, hg.node_mask)
+    idx = jnp.argmin(node_mask)
 
-    node_mask = hg.node_mask.at[idx].set(True)
+    node_mask = node_mask.at[idx].set(True)
     node_features = hg.node_features.at[idx].set(features)
 
     incidence = hg.incidence
@@ -124,9 +126,11 @@ def add_hyperedge(
     Returns:
         Updated Hypergraph with one more active hyperedge.
     """
-    idx = jnp.argmin(hg.edge_mask)
+    import typing
+    edge_mask = typing.cast(Array, hg.edge_mask)
+    idx = jnp.argmin(edge_mask)
 
-    edge_mask = hg.edge_mask.at[idx].set(True)
+    edge_mask = edge_mask.at[idx].set(True)
     incidence = hg.incidence.at[:, idx].set(members.astype(hg.incidence.dtype))
 
     edge_features = hg.edge_features
@@ -153,7 +157,9 @@ def remove_node(hg: Hypergraph, idx: int) -> Hypergraph:
     Returns:
         Updated Hypergraph with the node masked out.
     """
-    node_mask = hg.node_mask.at[idx].set(False)
+    import typing
+    node_mask = typing.cast(Array, hg.node_mask)
+    node_mask = node_mask.at[idx].set(False)
     incidence = hg.incidence.at[idx].set(0.0)
 
     return Hypergraph(
@@ -176,7 +182,9 @@ def remove_hyperedge(hg: Hypergraph, idx: int) -> Hypergraph:
     Returns:
         Updated Hypergraph with the hyperedge masked out.
     """
-    edge_mask = hg.edge_mask.at[idx].set(False)
+    import typing
+    edge_mask = typing.cast(Array, hg.edge_mask)
+    edge_mask = edge_mask.at[idx].set(False)
     incidence = hg.incidence.at[:, idx].set(0.0)
 
     return Hypergraph(

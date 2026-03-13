@@ -59,7 +59,7 @@ class HGNNStack(eqx.Module):
             conv_kwargs = {}
         keys = jax.random.split(key, len(conv_dims) + 1)
         self.convs = [
-            conv_cls(in_d, out_d, key=keys[i], **conv_kwargs)
+            conv_cls(in_d, out_d, key=keys[i], **conv_kwargs)  # pyright: ignore[reportCallIssue]
             for i, (in_d, out_d) in enumerate(conv_dims)
         ]
         if readout_dim is not None:

@@ -77,7 +77,9 @@ def draw_hypergraph(
     plt, nx = _ensure_deps()
 
     if ax is None:
-        _, ax = plt.subplots(figsize=(8, 6))
+        _, ax = plt.subplots(figsize=(8, 6))  # pyright: ignore[reportAssignmentType]
+    if ax is None:
+        raise ValueError("Could not create axes")
 
     H = np.asarray(hg._masked_incidence())
     n, m = H.shape
@@ -198,7 +200,9 @@ def draw_incidence(
     plt, _nx = _ensure_deps()
 
     if ax is None:
-        _, ax = plt.subplots(figsize=(6, 5))
+        _, ax = plt.subplots(figsize=(6, 5))  # pyright: ignore[reportAssignmentType]
+    if ax is None:
+        raise ValueError("Could not create axes")
 
     H = np.asarray(hg._masked_incidence())
     n, m = H.shape
@@ -314,7 +318,9 @@ def draw_trajectory(
     import matplotlib
 
     if ax is None:
-        _, ax = plt.subplots(figsize=(8, 5))
+        _, ax = plt.subplots(figsize=(8, 5))  # pyright: ignore[reportAssignmentType]
+    if ax is None:
+        raise ValueError("Could not create axes")
 
     ts_np = np.asarray(ts)
     feat_np = np.asarray(features)
@@ -373,7 +379,9 @@ def draw_phase_portrait(
     import matplotlib
 
     if ax is None:
-        _, ax = plt.subplots(figsize=(6, 6))
+        _, ax = plt.subplots(figsize=(6, 6))  # pyright: ignore[reportAssignmentType]
+    if ax is None:
+        raise ValueError("Could not create axes")
 
     feat_np = np.asarray(features)
     _T, n, _d = feat_np.shape
