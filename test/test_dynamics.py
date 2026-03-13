@@ -318,6 +318,12 @@ class TestEvolve:
         with pytest.raises(ValueError, match="Must provide key"):
             evolve(model, square_tiny_hypergraph)
 
+    def test_cde_evolve_requires_ts_and_controls(self, square_tiny_hypergraph, prng_key):
+        conv = hgx.UniGCNConv(in_dim=8, out_dim=24, key=prng_key)
+        model = HypergraphNeuralCDE(conv, control_dim=3)
+        with pytest.raises(ValueError, match="Must provide ts and controls for CDE integration."):
+            evolve(model, square_tiny_hypergraph)
+
 
 # ---------------------------------------------------------------------------
 # trajectory() convenience function
