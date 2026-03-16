@@ -45,6 +45,11 @@ docs = [
     "mkdocs-material",
     "mkdocstrings[python]",
 ]
+dynamics = ["diffrax>=0.5.0", "optax"]
+geometry = ["e3nn-jax"]
+topology = ["giotto-tda"]
+pgmax = ["pgmax"]
+anndata = ["anndata"]
 
 [project.urls]
 repository = "https://github.com/m9h/hgx"

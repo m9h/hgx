@@ -11,18 +11,34 @@ Standard graphs model pairwise relationships. But many systems — cell signalin
 ## Features
 
 - **Core data structure** (`Hypergraph`) with incidence matrix representation, optional geometry (Euclidean, Poincare, Lorentz), and masking for dynamic topology
-- **6 convolution layers:**
+- **14 convolution layers:**
   - `UniGCNConv` — first-order sum-aggregation message passing; reduces to GCN on pairwise graphs
   - `UniGCNSparseConv` — segment-sum drop-in replacement for UniGCN (O(nnz) instead of O(n*m))
   - `UniGATConv` — learned attention weights in the hyperedge-to-vertex step
   - `UniGINConv` — GIN-style MLP aggregation with a learnable self-loop parameter
   - `THNNConv` — tensorized high-order interactions via CP decomposition ([Wang et al., SDM 2024](https://arxiv.org/abs/2306.02560))
   - `THNNSparseConv` — sparse variant of THNN
+  - `SheafHypergraphConv` — sheaf-theoretic message passing
+  - `SheafDiffusion` — diffusion on sheaves
+  - `PoincareHypergraphConv` — Poincaré ball hyperbolic geometry (requires `hgx[geometry]`)
+  - `LorentzHypergraphConv` — Lorentz hyperboloid geometry (requires `hgx[geometry]`)
+  - `ProductSpaceConv`, `ProductManifoldConv` — mixed-curvature product manifolds
+  - `SE3HypergraphConv` — SE(3)-equivariant layers (requires `hgx[geometry]`)
+  - `OTConv` — optimal transport barycenter aggregation
 - **HGNNStack** — multi-layer model builder with activation, dropout, and optional readout
 - **Dynamic topology** — `preallocate`, `add_node`, `remove_node`, `add_hyperedge`, `remove_hyperedge` (all JIT-compatible)
 - **Sparse message passing** — `incidence_to_star_expansion`, `vertex_to_edge`, `edge_to_vertex` via `jax.ops.segment_sum`
-- **Continuous dynamics** — `HypergraphNeuralODE` and `HypergraphNeuralSDE` via [Diffrax](https://docs.kidger.site/diffrax/), with the `evolve` convenience wrapper (requires `hgx[dynamics]`)
-- **Visualization** — `draw_hypergraph`, `draw_incidence`, `draw_attention` (requires `hgx[viz]`)
+- **Continuous dynamics** — `HypergraphNeuralODE`, `HypergraphNeuralSDE`, `HypergraphNeuralCDE` via [Diffrax](https://docs.kidger.site/diffrax/), with `LatentHypergraphODE/SDE` and Riemannian dynamics (requires `hgx[dynamics]`)
+- **Information geometry** — Fisher-Rao metric, natural gradient descent, free-energy drift on the simplex
+- **Optimal transport** — Sinkhorn, Wasserstein distance/barycenters, Gromov-Wasserstein, hypergraph alignment
+- **Spectral methods** — hypergraph wavelet transforms, scattering, Chebyshev filters, Cheeger bounds
+- **Topology** — persistent homology, Hodge Laplacians, topological features (requires `hgx[topology]`)
+- **Temporal hypergraphs** — snapshot sequences, topology alignment, temporal smoothness loss
+- **NDP** — Neural Developmental Programs with cell growth and division dynamics
+- **Perturbation prediction** — in silico knockout screens, perturbation encoders
+- **GRN loaders** — load gene regulatory networks from CSV, edge lists, or AnnData
+- **PGMax bridge** — convert hypergraphs to factor graphs for probabilistic inference (requires `hgx[pgmax]`)
+- **Visualization** — `draw_hypergraph`, `draw_incidence`, `draw_attention`, `draw_trajectory`, `draw_phase_portrait` (requires `hgx[viz]`)
 - **Transforms** — clique expansion, hypergraph Laplacian
 - **JAX-native** — JIT, vmap, and grad all work out of the box
 - **Equinox modules** — composable with any Equinox/JAX workflow
@@ -30,10 +46,12 @@ Standard graphs model pairwise relationships. But many systems — cell signalin
 ## Installation
 
 ```bash
-pip install hgx                  # core library
-pip install "hgx[dynamics]"      # adds diffrax for Neural ODE/SDE
-pip install "hgx[viz]"           # adds matplotlib + networkx
-pip install "hgx[dynamics,viz]"  # everything
+pip install hgx                            # core library
+pip install "hgx[dynamics]"                # adds diffrax for Neural ODE/SDE/CDE
+pip install "hgx[geometry]"                # adds e3nn-jax for SE(3) layers
+pip install "hgx[topology]"               # adds giotto-tda for persistent homology
+pip install "hgx[viz]"                     # adds matplotlib + networkx
+pip install "hgx[dynamics,geometry,viz]"   # everything
 ```
 
 With conda (once the feedstock is published):
@@ -191,10 +209,21 @@ while keeping the common hypergraph case simple.
 | HGNNStack multi-layer model builder | Done |
 | Visualization (draw_hypergraph, draw_incidence, draw_attention) | Done |
 | Geometry field (Euclidean, Poincare, Lorentz) | Done |
-| Diffrax integration (Neural ODE/SDE) | Done |
+| Diffrax integration (Neural ODE/SDE/CDE) | Done |
+| Sheaf convolutions (SheafHypergraphConv, SheafDiffusion) | Done |
+| Hyperbolic convolutions (Poincare, Lorentz, product manifolds) | Done |
+| SE(3)-equivariant hypergraph layers | Done |
+| Information geometry (Fisher-Rao, natural gradients) | Done |
+| Optimal transport (Sinkhorn, Wasserstein, Gromov-Wasserstein) | Done |
+| Spectral methods (wavelets, scattering, Chebyshev) | Done |
+| Persistent homology and Hodge Laplacians | Done |
+| Temporal hypergraphs (snapshots, topology alignment) | Done |
+| NDP (Neural Developmental Programs) on hypergraphs | Done |
+| Perturbation prediction and knockout screens | Done |
+| GRN loaders (CSV, edge list, AnnData) | Done |
+| PGMax bridge (factor graphs, active inference) | Done |
+| Pooling (TopK, Spectral, Hierarchical) | Done |
 | CI + docs | In progress |
-| NDP (Neural Developmental Programs) on hypergraphs | Planned |
-| SE(3)-equivariant hypergraph layers | Planned |
 
 ## Related work
 

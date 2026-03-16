@@ -1,6 +1,16 @@
 """Hypergraph convolution layers."""
 
 from hgx._conv._base import AbstractHypergraphConv as AbstractHypergraphConv
+from hgx._conv._hyperbolic import PoincareHypergraphConv as PoincareHypergraphConv
+from hgx._conv._lorentz import LorentzHypergraphConv as LorentzHypergraphConv
+from hgx._conv._product import (
+    ProductHypergraphConv as ProductHypergraphConv,
+    ProductManifold as ProductManifold,
+    ProductManifoldConv as ProductManifoldConv,
+    ProductManifoldMLP as ProductManifoldMLP,
+    ProductSpaceConv as ProductSpaceConv,
+    ProductSpaceEmbedding as ProductSpaceEmbedding,
+)
 from hgx._conv._sheaf import (
     SheafDiffusion as SheafDiffusion,
     SheafHypergraphConv as SheafHypergraphConv,
@@ -11,3 +21,8 @@ from hgx._conv._unigat import UniGATConv as UniGATConv
 from hgx._conv._unigcn import UniGCNConv as UniGCNConv
 from hgx._conv._unigcn_sparse import UniGCNSparseConv as UniGCNSparseConv
 from hgx._conv._unigin import UniGINConv as UniGINConv
+
+try:
+    from hgx._conv._se3 import SE3HypergraphConv as SE3HypergraphConv
+except ImportError:
+    pass
