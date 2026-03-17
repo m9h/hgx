@@ -6,6 +6,7 @@ from collections.abc import Callable
 
 import equinox as eqx
 import jax
+import jax.numpy as jnp
 from jaxtyping import Array, Float, PRNGKeyArray
 
 from hgx._conv._base import AbstractHypergraphConv
@@ -21,17 +22,33 @@ class HGNNStack(eqx.Module):
             x = dropout(x)  (training only)
         x = readout(x)
 
+    Optional enhancements for deep stacks:
+        - ``residual=True``: additive skip connections (x_{l+1} = x_l + conv(x_l))
+          when input and output dimensions match.
+        - ``layer_norm=True``: LayerNorm between layers to stabilize training.
+        - ``initial_alpha``: UniGCNII-style initial residual connection that
+          blends each layer's output with the *initial* features:
+          x_{l+1} = alpha * x_0 + (1 - alpha) * conv(x_l).
+
     Attributes:
         convs: List of hypergraph convolution layers.
         readout: Optional final linear layer for classification/regression.
         activation: Activation function applied after each conv.
         dropout_rate: Dropout probability (applied during training).
+        residual: Whether to add skip connections.
+        layer_norm: Whether to apply LayerNorm after each conv.
+        initial_alpha: If not None, blend factor for initial residual.
+        norms: LayerNorm modules (one per conv layer), or None.
     """
 
     convs: list[AbstractHypergraphConv]
     readout: eqx.nn.Linear | None
     activation: Callable = eqx.field(static=True)
     dropout_rate: float = eqx.field(static=True)
+    residual: bool = eqx.field(static=True)
+    layer_norm: bool = eqx.field(static=True)
+    initial_alpha: float | None = eqx.field(static=True)
+    norms: list[eqx.nn.LayerNorm] | None
 
     def __init__(
         self,
@@ -41,6 +58,9 @@ class HGNNStack(eqx.Module):
         activation: Callable = jax.nn.relu,
         dropout_rate: float = 0.0,
         conv_kwargs: dict | None = None,
+        residual: bool = False,
+        layer_norm: bool = False,
+        initial_alpha: float | None = None,
         *,
         key: PRNGKeyArray,
     ):
@@ -53,6 +73,10 @@ class HGNNStack(eqx.Module):
             activation: Activation function (default: relu).
             dropout_rate: Dropout rate (0.0 = no dropout).
             conv_kwargs: Extra kwargs passed to each conv constructor.
+            residual: If True, add skip connections (when dims match).
+            layer_norm: If True, add LayerNorm after each conv layer.
+            initial_alpha: If not None, use UniGCNII-style initial residual
+                with blending factor alpha (0 < alpha < 1).
             key: PRNG key for initialization.
         """
         if conv_kwargs is None:
@@ -69,6 +93,14 @@ class HGNNStack(eqx.Module):
             self.readout = None
         self.activation = activation
         self.dropout_rate = dropout_rate
+        self.residual = residual
+        self.layer_norm = layer_norm
+        self.initial_alpha = initial_alpha
+
+        if layer_norm:
+            self.norms = [eqx.nn.LayerNorm(out_d) for _, out_d in conv_dims]
+        else:
+            self.norms = None
 
     def __call__(
         self,
@@ -88,6 +120,7 @@ class HGNNStack(eqx.Module):
             Node-level output features.
         """
         x = hg.node_features
+        x0 = x  # saved for initial_alpha residual
 
         for i, conv in enumerate(self.convs):
             # Build a hypergraph with updated features
@@ -100,8 +133,22 @@ class HGNNStack(eqx.Module):
                 edge_mask=hg.edge_mask,
                 geometry=hg.geometry,
             )
-            x = conv(hg_i)
-            x = self.activation(x)
+            h = conv(hg_i)
+
+            # Residual connection (only when dimensions match)
+            if self.residual and x.shape[-1] == h.shape[-1]:
+                h = x + h
+
+            # Initial residual (UniGCNII-style): blend with x_0
+            if self.initial_alpha is not None and x0.shape[-1] == h.shape[-1]:
+                alpha = self.initial_alpha
+                h = alpha * x0 + (1.0 - alpha) * h
+
+            # Layer normalization
+            if self.norms is not None:
+                h = jax.vmap(self.norms[i])(h)
+
+            x = self.activation(h)
 
             if self.dropout_rate > 0.0 and not inference:
                 if key is None:

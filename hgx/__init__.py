@@ -7,6 +7,8 @@ import importlib.metadata
 
 from hgx._conv import (
     AbstractHypergraphConv as AbstractHypergraphConv,
+    HGNNConv as HGNNConv,
+    HGNNSparseConv as HGNNSparseConv,
     LorentzHypergraphConv as LorentzHypergraphConv,
     PoincareHypergraphConv as PoincareHypergraphConv,
     ProductHypergraphConv as ProductHypergraphConv,
