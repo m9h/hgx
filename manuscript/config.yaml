@@ -1,0 +1,34 @@
+project:
+  name: hgx
+  title: Hypergraph neural networks in JAX/Equinox. Topological and geometric deep
+    learning on higher-order domains.
+  short_title: hgx
+authors:
+- name: Morgan G Hough
+  affiliation: ''
+  email: morgan.g.hough@gmail.com
+  orcid: ''
+date: '2026-03-20'
+version: 0.1.0
+abstract_source: auto
+keywords:
+- jax
+- equinox
+- hypergraph
+- graph-neural-networks
+- topological-deep-learning
+- geometric-deep-learning
+- computational-biology
+exclude_drafts: false
+bibliography: references.bib
+beamer_theme: metropolis
+scan_paths:
+- .
+exclude_paths:
+- .git
+- .venv
+- node_modules
+- __pycache__
+- manuscript/output
+- .github
+output_dir: manuscript/output

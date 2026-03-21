@@ -1,3 +1,13 @@
+---
+category: research
+section: methodology
+weight: 30
+title: "Dynamic Topology"
+status: draft
+slide_summary: "JIT-compatible dynamic topology operations (add/remove nodes and hyperedges) use pre-allocated masked arrays so that array shapes remain fixed, enabling topology changes within JAX-compiled functions."
+tags: [dynamic-topology, jit, preallocate, hypergraph, methodology]
+---
+
 # Dynamic Topology
 
 JIT-compatible operations for modifying hypergraph topology at runtime.

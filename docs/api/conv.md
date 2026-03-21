@@ -1,3 +1,13 @@
+---
+category: research
+section: methodology
+weight: 10
+title: "Convolution Layers"
+status: draft
+slide_summary: "HGX provides six hypergraph convolution layers (UniGCN, UniGAT, UniGIN, THNN, and sparse variants) sharing a unified interface, enabling first-order message passing, attention-weighted aggregation, and tensorized higher-order interactions."
+tags: [convolution, message-passing, unigcn, unigat, thnn, hypergraph, methodology]
+---
+
 # Convolution Layers
 
 All convolution layers inherit from `AbstractHypergraphConv` and share the same

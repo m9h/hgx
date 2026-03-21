@@ -1,3 +1,13 @@
+---
+category: research
+section: introduction
+weight: 10
+title: "HGX: Hypergraph Neural Networks in JAX/Equinox"
+status: draft
+slide_summary: "HGX is the first JAX-native library for deep learning on hypergraphs and higher-order topological domains, providing 14 convolution layers, continuous-time dynamics via Diffrax, and JIT-compatible dynamic topology -- all built on Equinox."
+tags: [hgx, hypergraph, jax, equinox, topological-deep-learning, higher-order-networks]
+---
+
 # hgx
 
 Hypergraph neural networks in JAX/Equinox.

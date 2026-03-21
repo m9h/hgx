@@ -1,3 +1,12 @@
+---
+category: infrastructure
+section: methodology
+weight: 10
+title: "Getting Started"
+status: draft
+tags: [installation, tutorial, quickstart, hgx]
+---
+
 # Getting Started
 
 ## Installation

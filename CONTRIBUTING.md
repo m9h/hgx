@@ -1,3 +1,12 @@
+---
+category: infrastructure
+section: appendix
+weight: 90
+title: "Contributing Guide"
+status: final
+tags: [contributing, development, infrastructure]
+---
+
 # Contributing
 
 Contributions are welcome! This guide follows the same workflow used by

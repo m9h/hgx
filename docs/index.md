@@ -1,3 +1,12 @@
+---
+category: infrastructure
+section: introduction
+weight: 20
+title: "Documentation Index"
+status: draft
+tags: [documentation, hgx, overview]
+---
+
 # hgx
 
 **Hypergraph neural networks in JAX/Equinox.**
