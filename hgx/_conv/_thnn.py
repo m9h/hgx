@@ -114,6 +114,9 @@ class THNNConv(AbstractHypergraphConv):
 
         # Sum of logs for magnitude
         log_prod = H.T @ jnp.log(z_abs)  # (m, rank)
+        # Clamp log-product to prevent exp() overflow for large hyperedges
+        # (sum-of-logs grows unbounded when edges have hundreds of members)
+        log_prod = jnp.clip(log_prod, -30.0, 30.0)
 
         # Product of signs: use the fact that sign is +/-1
         # log(sign) trick: encode sign as 0 or pi, sum, take cos
