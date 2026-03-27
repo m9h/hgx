@@ -6,6 +6,7 @@ Requires optional dependencies: ``pip install hgx[viz]``
 
 from __future__ import annotations
 
+import dataclasses
 from collections.abc import Sequence
 from typing import Any, TYPE_CHECKING
 
@@ -44,15 +45,22 @@ def _default_edge_colors(num_edges: int):
     return [cmap(i % cmap.N) for i in range(num_edges)]
 
 
+@dataclasses.dataclass
+class DrawConfig:
+    """Configuration for hypergraph drawing."""
+
+    node_color: str | Sequence[Any] | None = None
+    edge_color: Sequence[Any] | None = None
+    node_labels: Sequence[str] | None = None
+    title: str | None = None
+    edge_linewidth: np.ndarray | None = None
+    kwargs: dict[str, Any] = dataclasses.field(default_factory=dict)
+
+
 def draw_hypergraph(
     hg: Hypergraph,
     ax: matplotlib.axes.Axes | None = None,
-    node_color: str | Sequence[Any] | None = None,
-    edge_color: Sequence[Any] | None = None,
-    node_labels: Sequence[str] | None = None,
-    title: str | None = None,
-    edge_linewidth: np.ndarray | None = None,
-    **kwargs: Any,
+    config: DrawConfig | None = None,
 ) -> matplotlib.axes.Axes:
     """Draw a hypergraph using its star-expansion bipartite layout.
 
@@ -63,13 +71,7 @@ def draw_hypergraph(
     Args:
         hg: Hypergraph to visualize.
         ax: Matplotlib axes. Created if *None*.
-        node_color: Color(s) for vertex nodes.
-        edge_color: Color(s) for hyperedge nodes and their connecting lines.
-        node_labels: Labels for vertex nodes.
-        title: Plot title.
-        edge_linewidth: Per-membership line widths of shape (nnz,) matching
-            the star-expansion ordering. If *None*, uniform width is used.
-        **kwargs: Forwarded to ``nx.draw_networkx_nodes`` for vertex nodes.
+        config: Configuration for colors, labels, line widths, etc.
 
     Returns:
         The matplotlib axes used for drawing.
@@ -112,11 +114,19 @@ def draw_hypergraph(
     else:
         pos = nx.spring_layout(G, seed=42)
 
+    if config is None:
+        config = DrawConfig()
+
     # Colors
-    v_color = node_color if node_color is not None else "steelblue"
+    v_color = config.node_color if config.node_color is not None else "steelblue"
     e_colors = (
-        list(edge_color) if edge_color is not None else _default_edge_colors(m)
+        list(config.edge_color)
+        if config.edge_color is not None
+        else _default_edge_colors(m)
     )
+
+    draw_kwargs = config.kwargs.copy()
+    node_size = draw_kwargs.pop("node_size", 400)
 
     # Draw vertex nodes (circles)
     nx.draw_networkx_nodes(
@@ -125,9 +135,9 @@ def draw_hypergraph(
         nodelist=v_nodes,
         node_color=v_color if isinstance(v_color, str) else list(v_color),
         node_shape="o",
-        node_size=kwargs.pop("node_size", 400),
+        node_size=node_size,
         ax=ax,
-        **kwargs,
+        **draw_kwargs,
     )
 
     # Draw hyperedge nodes (squares)
@@ -150,8 +160,8 @@ def draw_hypergraph(
 
     # Build a per-membership linewidth lookup if provided
     lw_lookup: dict[tuple[str, str], float] | None = None
-    if edge_linewidth is not None:
-        lw_arr = np.asarray(edge_linewidth)
+    if config.edge_linewidth is not None:
+        lw_arr = np.asarray(config.edge_linewidth)
         v_idx, e_idx = np.nonzero(H)
         lw_lookup = {}
         for idx in range(len(v_idx)):
@@ -165,16 +175,16 @@ def draw_hypergraph(
         )
 
     # Labels
-    if node_labels is not None:
-        v_labels = {f"v{i}": str(node_labels[i]) for i in range(n)}
+    if config.node_labels is not None:
+        v_labels = {f"v{i}": str(config.node_labels[i]) for i in range(n)}
     else:
         v_labels = {f"v{i}": str(i) for i in range(n)}
     e_labels = {f"e{k}": f"e{k}" for k in range(m)}
 
     nx.draw_networkx_labels(G, pos, labels={**v_labels, **e_labels}, ax=ax)
 
-    if title is not None:
-        ax.set_title(title)
+    if config.title is not None:
+        ax.set_title(config.title)
     ax.axis("off")
 
     return ax
@@ -279,12 +289,16 @@ def draw_attention(
     else:
         scaled = np.full_like(attn_vals, 2.0)
 
+    config = DrawConfig(
+        title=title or "Attention Weights",
+        edge_linewidth=scaled,
+        kwargs=kwargs,
+    )
+
     return draw_hypergraph(
         hg,
         ax=ax,
-        title=title or "Attention Weights",
-        edge_linewidth=scaled,
-        **kwargs,
+        config=config,
     )
 
 
