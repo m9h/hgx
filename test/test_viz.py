@@ -1,5 +1,10 @@
 """Tests for visualization utilities (Agg backend, no display)."""
 
+import pytest
+
+
+pytest.importorskip("matplotlib")
+
 import matplotlib
 
 

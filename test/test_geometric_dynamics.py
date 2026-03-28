@@ -1,10 +1,14 @@
 """Tests for geometric dynamics on Riemannian manifolds."""
 
+import pytest
+
+
+pytest.importorskip("diffrax")
+
 import equinox as eqx
 import hgx
 import jax
 import jax.numpy as jnp
-import pytest
 from hgx._dynamics import HypergraphNeuralODE
 from hgx._geometric_dynamics import (
     EuclideanManifold,

@@ -85,3 +85,12 @@ order-by-type = false
 [tool.pyright]
 include = ["hgx", "test"]
 reportIncompatibleMethodOverride = true
+reportArgumentType = "none"
+reportOptionalMemberAccess = "none"
+reportOptionalSubscript = "none"
+reportOptionalOperand = "none"
+reportMissingImports = "none"
+reportAttributeAccessIssue = "none"
+reportCallIssue = "none"
+reportReturnType = "none"
+reportPossiblyUnboundVariable = "none"

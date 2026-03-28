@@ -8,8 +8,11 @@ on:
 
 jobs:
   test:
-    name: Lint & Test
+    name: Test Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
     env:
       JAX_PLATFORM_NAME: cpu
     steps:
@@ -17,9 +20,15 @@ jobs:
       - uses: astral-sh/setup-uv@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
       - run: uv venv
       - run: uv pip install -e ".[tests,viz,dynamics]"
-      - run: uv pip install ruff
-      - run: uv run ruff check hgx/
-      - run: uv run pytest test/ -v --tb=short
+      - run: uv pip install ruff pyright
+      - name: Ruff Lint
+        run: uv run ruff check hgx/
+      - name: Pyright Type Check
+        run: uv run pyright hgx/ test/
+      - name: Fast Tests (No Network)
+        run: uv run pytest test/ -k "not slow" -v --tb=short
+      - name: Slow Tests (Network, Allowed to Fail)
+        run: uv run pytest test/ -m slow -v --tb=short || true
