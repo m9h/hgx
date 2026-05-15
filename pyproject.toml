@@ -47,7 +47,7 @@ docs = [
 ]
 dynamics = ["diffrax>=0.5.0", "optax"]
 geometry = ["e3nn-jax"]
-topology = ["giotto-tda"]
+topology = ["giotto-tda>=0.6.2"]
 pgmax = ["pgmax"]
 anndata = ["anndata"]
 

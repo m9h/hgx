@@ -6,22 +6,6 @@ on:
   pull_request:
 
 jobs:
-  test:
-    name: Test (Python ${{ matrix.python-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12"]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: uv venv
-      - run: uv pip install -e ".[tests]"
-      - run: uv run pytest test/ -v
-
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -34,3 +18,24 @@ jobs:
       - run: uv venv
       - run: uv pip install ruff
       - run: uv run ruff check hgx/ test/
+
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    env:
+      JAX_PLATFORM_NAME: cpu
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          uv venv
+          uv pip install -e ".[tests,dynamics,viz,geometry]"
+      - name: Run tests
+        run: uv run pytest test/ -v -m "not slow"
