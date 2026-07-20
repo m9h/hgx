@@ -184,7 +184,7 @@ class HypergraphNDP(eqx.Module):
         k_noise, k_grow = jax.random.split(key)
 
         # 1. Message passing to get neighborhood aggregation
-        neighbor_agg = self.conv(hg)  # (max_nodes, d)
+        neighbor_agg = self.conv(hg)  # pyright: ignore[reportCallIssue] # (max_nodes, d)
 
         # 2. Run CellProgram on every node (vmapped)
         state_updates, grow_logits, connect_logits = jax.vmap(self.program)(
@@ -195,7 +195,8 @@ class HypergraphNDP(eqx.Module):
         # connect_logits: (max_nodes, hidden_dim)
 
         # 3. Apply state updates (masked: only active nodes change)
-        node_mask = hg.node_mask  # (max_nodes,)
+        import typing
+        node_mask = typing.cast(Array, hg.node_mask)  # (max_nodes,)
         new_features = hg.node_features + state_updates * node_mask[:, None]
 
         # 4. Growth: determine which active nodes want to divide
@@ -262,7 +263,7 @@ class HypergraphNDP(eqx.Module):
         parent_indices = jnp.arange(self.max_nodes)
         init_carry = (new_features, hg.incidence, node_mask, hg.edge_mask, available)
         (new_features, new_incidence, new_node_mask, new_edge_mask, _), _ = (
-            jax.lax.scan(_grow_step, init_carry, parent_indices)
+            jax.lax.scan(_grow_step, init_carry, parent_indices)  # pyright: ignore[reportCallIssue]
         )
 
         return Hypergraph(
@@ -308,7 +309,7 @@ class HypergraphNDP(eqx.Module):
             hg = self(hg, key=step_key)
             return hg, hg.node_features
 
-        hg_final, _features_trajectory = jax.lax.scan(_step, hg, keys)
+        hg_final, _features_trajectory = jax.lax.scan(_step, hg, keys)  # pyright: ignore[reportCallIssue]
         return hg_final
 
 
@@ -356,6 +357,6 @@ def develop_trajectory(
         hg = ndp(hg, key=step_key)
         return hg, hg.node_features
 
-    _, features = jax.lax.scan(_step, hg, keys)
+    _, features = jax.lax.scan(_step, hg, keys)  # pyright: ignore[reportCallIssue]
     ts = jnp.arange(num_steps, dtype=jnp.float32)
     return ts, features

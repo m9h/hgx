@@ -5,6 +5,9 @@ import hgx
 import jax
 import jax.numpy as jnp
 import pytest
+
+diffrax = pytest.importorskip("diffrax")
+
 from hgx._dynamics import (
     evolve,
     HypergraphNeuralCDE,

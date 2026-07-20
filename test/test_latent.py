@@ -6,6 +6,8 @@ import jax
 import jax.numpy as jnp
 import pytest
 
+diffrax = pytest.importorskip("diffrax")
+
 
 @pytest.fixture
 def tiny_hg():
