@@ -598,12 +598,15 @@ def generate_plots(data, results_a, results_b, results_c, fig_dir):
             type_names = [
                 CELL_TYPE_NAMES[int(l) % len(CELL_TYPE_NAMES)] for l in label_arr
             ]
+            config = hgx.DrawConfig(
+                node_labels=type_names,
+                title=f"Embryo at t={t}",
+                kwargs={"node_size": 300},
+            )
             hgx.draw_hypergraph(
                 hg_snap,
                 ax=axes[idx],
-                node_labels=type_names,
-                title=f"Embryo at t={t}",
-                node_size=300,
+                config=config,
             )
 
         fig.tight_layout()
